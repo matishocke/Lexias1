@@ -1,18 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Lexias.Services.CouponAPI.Models
+﻿namespace UmbracoLexiasWeb.Models
 {
-    public class Coupon
+    public class CouponDto
     {
-        [Key]
         public int CouponId { get; set; }
-
-        [Required]
         public string CouponCode { get; set; }
-
-        [Required]
         public double DiscountAmount { get; set; }
-
         public int MinAmount { get; set; }
     }
 }

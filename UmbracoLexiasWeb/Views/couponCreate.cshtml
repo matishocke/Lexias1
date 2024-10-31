@@ -1,0 +1,12 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels
+@using UmbracoLexiasWeb.Models.ViewModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = "master.cshtml";
+
+    var model = new CouponViewModel();
+
+}
+
+<!-- Inkluder partial view for oprettelse af kupon -->
+@Html.Partial("~/Views/Partials/CouponSurface/CouponCreate.cshtml", model)

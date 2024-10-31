@@ -1,0 +1,55 @@
+﻿@using UmbracoLexiasWeb.Models.ViewModels
+@using UmbracoLexiasWeb.Controller
+
+@model CouponViewModel
+
+@using (Html.BeginUmbracoForm<CouponSurfaceController>(nameof(CouponSurfaceController.CouponDelete)))
+{
+    <br />
+    <div class="container border p-3">
+        <h1 class="text-white text-center">Delete Coupon</h1>
+        <hr />
+
+        <div class="row">
+            <!-- Hidden CouponId Field -->
+            <input asp-for="CouponId" type="hidden" />
+
+            <!-- Coupon Code -->
+            <div class="col-2">
+                <label class="control-label pt-2" style="font-size:20px;">Coupon Code</label>
+            </div>
+            <div class="col-10 pb-3">
+                <input asp-for="CouponCode" class="form-control" disabled />
+            </div>
+
+            <!-- Discount Amount -->
+            <div class="col-2">
+                <label class="control-label pt-2" style="font-size:20px;">Discount Amount</label>
+            </div>
+            <div class="col-10 pb-3">
+                <input asp-for="DiscountAmount" class="form-control" disabled />
+            </div>
+
+            <!-- Minimum Amount -->
+            <div class="col-2">
+                <label class="control-label pt-2" style="font-size:20px;">Minimum Amount</label>
+            </div>
+            <div class="col-10 pb-3">
+                <input asp-for="MinAmount" class="form-control" disabled />
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-5 offset-2">
+                <a href="@Url.Content("/couponindexpage")" class="btn-primary btn form-control">Back to List</a>
+            </div>
+            <div class="col-5">
+                <input type="submit" value="Delete" class="btn btn-danger form-control" />
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @* Client-side validation if needed *@
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,44 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using UmbracoLexiasWeb.Models.ViewModels;
+@inject UmbracoLexiasWeb.Services.IService.ICouponService _couponService;
+
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+
+@{
+    Layout = "master.cshtml"; // Brug layout
+
+    List<CouponViewModel> couponList = new List<CouponViewModel>(); // Liste til coupons
+
+    try
+    {
+        // Hent kupondetaljer fra API'et
+        var couponsDto = await _couponService.GetAllCouponAsync();
+
+        if (couponsDto != null && couponsDto.Any())
+        {
+            // Map fra CouponDto til CouponViewModel og opret listen
+            couponList = couponsDto.Select(x => new CouponViewModel
+                    {
+                        CouponId = x.CouponId,
+                        CouponCode = x.CouponCode,
+                        DiscountAmount = x.DiscountAmount,
+                        MinAmount = x.MinAmount
+                    }).ToList();
+        }
+    }
+    catch (Exception ex)
+    {
+        // Fejlhåndtering
+        <p>Der opstod en fejl ved hentning af kupondataliste: @ex.Message</p>
+    }
+}
+
+@if (couponList.Any())
+{
+    <!-- Overfør kuponlisten til din partial view -->
+    @Html.Partial("~/Views/Partials/CouponSurface/CouponIndex.cshtml", couponList)
+}
+else
+{
+    <p>Ingen kuponer tilgængelige.</p>
+}

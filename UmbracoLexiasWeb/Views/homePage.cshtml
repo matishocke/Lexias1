@@ -1,0 +1,87 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+
+@{
+    Layout = "master.cshtml";
+    // Fetch the image from the media picker property named 'homeImage'
+    var imageHome = Model.Value<IPublishedContent>("homePageImage");
+    // Get the URL for the home image or fallback to a default image if not set
+    var backgroundImageUrl = imageHome != null ? imageHome.Url() : "/images/default-background.jpg";
+
+}
+
+
+
+<div class="jumbotron d-flex align-items-center" style="background-image: url('@backgroundImageUrl'); background-size: cover; background-position: center; background-color: transparent;">
+    <div class="container text-center text-white">
+        <h1 class="display-1 mb-4">
+            @Model.Value("highLightText")
+        </h1>
+        
+        <p class="lead">Explore our latest collection and find the perfect outfit for any occasion.</p>
+        <a href="/shop" class="btn btn-primary btn-lg">Shop Now</a>
+    </div>
+</div>
+
+
+
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+    <div class="container-fluid">
+        <div class="row no-gutters">
+            <!-- Feature 1 -->
+            <div class="col-md-6">
+                <div class="feature-item">
+                    @{
+                        var pic1 = Model.Value<IPublishedContent>("image1");
+                        if (pic1 != null)
+                        {
+                            <img src="@pic1.Url()" class="img-fluid feature-image" alt="@pic1.Value("alt")" />
+                        }
+                        else
+                        {
+                            <img src="/path-to-default-image.jpg" class="img-fluid feature-image" alt="Default Image" />
+                        }
+                    }
+                </div>
+            </div>
+            <!-- Feature 2 -->
+            <div class="col-md-6">
+                <div class="feature-item">
+                    @{
+                        var pic2 = Model.Value<IPublishedContent>("image2");
+                        if (pic2 != null)
+                        {
+                            <img src="@pic2.Url()" class="img-fluid feature-image" alt="@pic2.Name" />
+                         }
+                        else
+                        {
+                            <img src="/path-to-default-image.jpg" class="img-fluid feature-image" alt="Default Image" />
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+
+<div class="feature-item">
+                    @{
+                        var typedMediaPickerSingle3 = Model.Value<IPublishedContent>("image1");
+                        if (typedMediaPickerSingle3 != null)
+                        {
+                            <img src="@typedMediaPickerSingle3.Url()" width="700"  class="img-fluid feature-image" alt="@typedMediaPickerSingle3.Value("alt")" />
+                        }
+                        else
+                        {
+                            <img src="/path-to-default-image.jpg" class="img-fluid feature-image" alt="Default Image" />
+                        }
+                    }
+                </div>

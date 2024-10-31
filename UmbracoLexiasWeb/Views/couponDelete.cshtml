@@ -1,0 +1,45 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using UmbracoLexiasWeb.Models.ViewModels;
+@inject UmbracoLexiasWeb.Services.IService.ICouponService _couponService;
+
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = "master.cshtml";
+    //couponId is already here we have sent it through CouponIndex
+
+
+    // Retrieve the couponId from the query string
+    var couponId = Context.Request.Query["couponId"].ToString();
+
+    CouponViewModel couponViewModel = null;
+
+
+    if (!string.IsNullOrEmpty(couponId) && int.TryParse(couponId, out var id))
+    {
+        // Fetch the coupon details using the service
+        var coupon = await _couponService.GetCouponByIdAsync(id);
+
+        // If coupon exists, map it to the CouponViewModel
+
+        if (coupon != null)
+        {
+            couponViewModel = new CouponViewModel
+            {
+                 CouponId = coupon.CouponId,
+                 CouponCode = coupon.CouponCode,
+                 DiscountAmount = coupon.DiscountAmount,
+                 MinAmount = coupon.MinAmount,
+            };
+        }
+    }
+}
+
+
+@if (couponViewModel != null)
+{
+    @Html.Partial("~/Views/Partials/CouponSurface/CouponDelete.cshtml", couponViewModel)
+}
+else
+{
+    <p>Coupon not found.</p>
+}

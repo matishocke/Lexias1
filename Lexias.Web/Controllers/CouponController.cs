@@ -17,11 +17,22 @@ namespace Lexias.Web.Controllers
 
         public async Task<IActionResult> CouponIndex()
         {
-            var listOfAllCoupon = await _couponService.GetAllCouponAsync();
-            if (listOfAllCoupon == null) { return NotFound(); }
+            try
+            {
+                var listOfAllCoupon = await _couponService.GetAllCouponAsync();
 
-
-            return View(listOfAllCoupon);
+                if (listOfAllCoupon != null)
+                {
+                    return View(listOfAllCoupon);
+                }
+                TempData["Error"] = "No coupons found";
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "An error occurred while retrieving coupons";
+                return StatusCode(500); // Internal Server Error
+            }
         }
 
 
@@ -42,14 +53,24 @@ namespace Lexias.Web.Controllers
             // Check if the submitted data is VALID
             if (ModelState.IsValid)
             {
-                await _couponService.CreateCouponAsync(couponDto);
+                try
+                {
+                    await _couponService.CreateCouponAsync(couponDto);
 
-                // If deletion is successful, redirect to the index page
-                return RedirectToAction("CouponIndex");
+                    TempData["Success"] = "Coupon created successfully!";
+
+                    // If deletion is successful, redirect to the index page
+                    return RedirectToAction("CouponIndex");
+                }
+                catch (Exception ex) 
+                {
+                    TempData["Error"] = "An error occurred while creating the coupon.";
+
+                }
             }
             else
             {
-                ModelState.AddModelError("", "");
+                ModelState.AddModelError("", "Invalid coupon data. Please correct the errors and try again.");
             }
 
             return View(couponDto);
@@ -78,19 +99,19 @@ namespace Lexias.Web.Controllers
         {
             if (couponDto == null || couponDto.CouponId <= 0)
             {
+                TempData["Error"] = "Coupon could not be found";
                 return NotFound();
             }
             try
             {
                 await _couponService.DeleteCouponAsync(couponDto.CouponId);
+                TempData["Success"] = "Coupon Deleted Successfully";
                 return RedirectToAction("CouponIndex");
             }
             catch (Exception ex)
             {
-                // Log the exception, return an error page or a message
-                // Example: return a custom error view with a message
-                ModelState.AddModelError("", "An error occurred while deleting the coupon.");
-                return View(couponDto); // Returning to the same page
+                TempData["Error"] = "Coupon Not Deleted";
+                return RedirectToAction("CouponIndex");
             }
 
         }
