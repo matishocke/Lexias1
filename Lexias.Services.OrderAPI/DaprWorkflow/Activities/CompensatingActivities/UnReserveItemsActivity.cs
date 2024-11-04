@@ -1,31 +1,25 @@
 ﻿using Dapr.Workflow;
 using Lexias.Services.OrderAPI.Data;
 using Lexias.Services.OrderAPI.Models;
+using Shared.Dtos.WarehouseDto;
 using Shared.Enum;
 
 namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities.CompensatingActivities
 {
-    public class UnReserveItemsActivity : WorkflowActivity<Order, OrderResult>
+    public class UnReserveItemsActivity : WorkflowActivity<InventoryRequestDto, object?>
     {
-        private readonly AppDbContext _dbContext;
+        private readonly ILogger<UnReserveItemsActivity> _logger;
 
-        public UnReserveItemsActivity(AppDbContext dbContext)
+        public UnReserveItemsActivity(ILogger<UnReserveItemsActivity> logger)
         {
-            _dbContext = dbContext;
+            _logger = logger;
         }
 
-        public override async Task<OrderResult> RunAsync(WorkflowActivityContext context, Order order)
+        public override async Task<object?> RunAsync(WorkflowActivityContext context, InventoryRequestDto request)
         {
-            // Logic to unreserve items
-            var existingOrder = await _dbContext.Orders.FindAsync(order.OrderId);
-            if (existingOrder != null)
-            {
-                existingOrder.OrderStatus = OrderStatus.Unreserved;  // Example status update
-                _dbContext.Orders.Update(existingOrder);
-                await _dbContext.SaveChangesAsync();
-            }
-
-            return new OrderResult(order.OrderId, OrderStatus.Unreserved, true, "Items have been unreserved.");
+            _logger.LogInformation($"Unreserving items for OrderId: {context.InstanceId}");
+            await Task.CompletedTask;
+            return null;
         }
     }
 }

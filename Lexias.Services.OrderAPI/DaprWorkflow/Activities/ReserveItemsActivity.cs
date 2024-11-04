@@ -1,31 +1,39 @@
-﻿using Dapr.Workflow;
-using Lexias.Services.OrderAPI.Data;
-using Lexias.Services.OrderAPI.Models;
-using Shared.Enum;
+﻿using Dapr.Client;
+using Dapr.Workflow;
+using Shared.Dtos.WarehouseDto;
+using Shared.IntegrationEvents;
+using Shared.Queues;
 
 namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
 {
-    public class ReserveItemsActivity : WorkflowActivity<Order, OrderResult>
+    public class ReserveItemsActivity : WorkflowActivity<InventoryRequestDto, object?>
     {
-        private readonly AppDbContext _dbContext;
+        private readonly DaprClient _daprClient;
+        private readonly ILogger<ReserveItemsActivity> _logger;
 
-        public ReserveItemsActivity(AppDbContext dbContext)
+        public ReserveItemsActivity(DaprClient daprClient, ILogger<ReserveItemsActivity> logger)
         {
-            _dbContext = dbContext;
+            _logger = logger;
+            _daprClient = daprClient;
         }
 
-        public override async Task<OrderResult> RunAsync(WorkflowActivityContext context, Order order)
+
+
+        public override async Task<object?> RunAsync(WorkflowActivityContext context, InventoryRequestDto itemToReserve)
         {
-            var existingOrder = await _dbContext.Orders.FindAsync(order.OrderId);
+            _logger.LogInformation($"Attempting to reserve items for Order: {context.InstanceId}");
 
-            if (existingOrder == null)
-                return new OrderResult(order.OrderId, OrderStatus.InsufficientInventory, false, "Order not found");
+            var reserveItemEvent = new ReserveItemsEvent 
+            { 
+                CorrelationId = context.InstanceId, 
+                OrderItems = itemToReserve.ItemsRequested  //sender hele OrderItemS(quantity productid)
+            };
 
-            // Simulate inventory check and reservation
-            existingOrder.OrderStatus = OrderStatus.SufficientInventory;
-            await _dbContext.SaveChangesAsync();
+            await _daprClient.PublishEventAsync(WarehouseChannel.Channel,
+                                                WarehouseChannel.Topics.Reservation,
+                                                reserveItemEvent);
 
-            return new OrderResult(existingOrder.OrderId, existingOrder.OrderStatus, true, "Items reserved successfully");
+            return null;
         }
     }
 }

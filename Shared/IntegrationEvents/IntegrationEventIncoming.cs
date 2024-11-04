@@ -1,4 +1,5 @@
-﻿using Shared.Enum;
+﻿using Shared.Dtos.OrderDto;
+using Shared.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,37 +8,68 @@ using System.Threading.Tasks;
 
 namespace Shared.IntegrationEvents
 {
-    public abstract record IntegrationEventIncoming
+    public abstract class IntegrationEventIncoming
     {
-        public string CorrelationId { get; init; } = string.Empty;
-        public ResultState State { get; init; } = ResultState.Failed;
+        public string CorrelationId { get; set; } = string.Empty;
+        public ResultState State { get; set; } = ResultState.Failed;
     }
 
-    public record PaymentProcessedResultEvent : IntegrationEventIncoming
+    public class PaymentProcessedResultEvent : IntegrationEventIncoming
     {
         public decimal Amount { get; set; }
-        public bool IsSuccessful => State == ResultState.Succeeded;
     }
 
-    public record ItemsReservedResultEvent : IntegrationEventIncoming
+    public class ItemsReservedResultEvent : IntegrationEventIncoming
     {
-        public bool IsSuccessful => State == ResultState.Succeeded;
     }
 
-    public record ItemsShippedResultEvent : IntegrationEventIncoming
+    public class ItemsReservationFailedEvent : IntegrationEventIncoming
     {
-        public bool IsSuccessful => State == ResultState.Succeeded;
-    }
-
-    public record OrderCompletedEvent : IntegrationEventIncoming { }
-
-    public abstract record FailedEvent : IntegrationEventIncoming
-    {
+        public List<OrderItemDto> Items { get; set; } = new();
         public string Reason { get; set; } = string.Empty;
     }
 
-    public record OrderFailedEvent : FailedEvent { }
-    public record PaymentFailedEvent : FailedEvent { }
-    public record ItemsReservationFailedEvent : FailedEvent { }
-    public record ItemsShipmentFailedEvent : FailedEvent { }
+
+
+
+
+
+
+
+
+
+
+    //    public abstract record IntegrationEventIncoming
+    //    {
+    //        public string CorrelationId { get; init; } = string.Empty;
+    //        public ResultState State { get; init; } = ResultState.Failed;
+    //    }
+
+    //    public record PaymentProcessedResultEvent : IntegrationEventIncoming
+    //    {
+    //        public decimal Amount { get; set; }
+    //        public bool IsSuccessful => State == ResultState.Succeeded;
+    //    }
+
+    //    public record ItemsReservedResultEvent : IntegrationEventIncoming
+    //    {
+    //        public bool IsSuccessful => State == ResultState.Succeeded;
+    //    }
+
+    //    public record ItemsShippedResultEvent : IntegrationEventIncoming
+    //    {
+    //        public bool IsSuccessful => State == ResultState.Succeeded;
+    //    }
+
+    //    public record OrderCompletedEvent : IntegrationEventIncoming { }
+
+    //    public abstract record FailedEvent : IntegrationEventIncoming
+    //    {
+    //        public string Reason { get; set; } = string.Empty;
+    //    }
+
+    //    public record OrderFailedEvent : FailedEvent { }
+    //    public record PaymentFailedEvent : FailedEvent { }
+    //    public record ItemsReservationFailedEvent : FailedEvent { }
+    //    public record ItemsShipmentFailedEvent : FailedEvent { }
 }

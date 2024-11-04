@@ -73,11 +73,19 @@
         </button>
         <div class="collapse navbar-collapse" id="navbar-nav-header">
             <ul class="navbar-nav lx-auto">
-                @foreach (var child in Model.Root().Children()){
-                    <li class="nav-item">
-                        <a class="nav-link" href="@child.Url()">@child.Name</a>
-                    </li>
+
+
+                <!-- Children in NavBar -->
+                @foreach (var child in Model.Root().Children())
+                {
+                    if (child.Name != "Collections" && child.Name != "WhitepaperPage" && child.Name != "Coupon")
+                    {
+                        <li class="nav-item">
+                             <a class="nav-link" href="@child.Url()">@child.Name</a>
+                        </li>
+                    }
                 }
+
 
                 <!-- Existing Language Dropdown -->
                 <li class="nav-item lang-dropdown clickable" onclick="langDropdown()">
@@ -87,27 +95,41 @@
                     </div>
                 </li>
 
-                <!-- Coupon Dropdown -->
-                    <li class="nav-item dropdown">
+
+
+                <!-- Dropdown -->
+                <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-grid-fill"></i>
                     </a>
+
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        @foreach (var coupon in Model.Root().Children().Where(c => c.ContentType.Alias == "coupon")) 
+                             
+                        <!-- specific items like doable in dropdown -->
+                        @foreach (var child in Model.Root().Children())
                         {
-                            <li><a class="dropdown-item" href="@coupon.Url()">@coupon.Name</a></li>
-                            TempData["Error"] = "Coupon here";
+                            if (child.Name == "Collections" || child.Name == "Coupon")
+                            {
+                                <li><a class="dropdown-item" href="@child.Url()">@child.Name</a></li>
+                            }
                         }
-                        <li><a class="dropdown-item" href="#">Action </a></li>
-                        <li><a class="dropdown-item" href="#">Action 2</a></li>
+
+                        <!-- line -->
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Saparat Action </a></li>
-                       
-                        <li><a class="dropdown-item" asp-controller="CouponSurface" asp-action="CouponIndex">Coupons</a></li>
-                               
-                          
+
+                        <!-- specific items like documantable in dropdown -->
+                        @foreach (var child in Model.Root().Children())
+                        {
+                            if (child.Name == "WhitepaperPage")
+                            {
+                                <li><a class="dropdown-item" href="@child.Url()">@child.Name</a></li>
+                            }
+                        }  
+
                     </ul>
                 </li>
+
+
             </ul>
         </div>
     </div>
@@ -118,14 +140,14 @@
 
 
 
+<div class="content-wrapper">
+        @RenderBody()
+</div>
 
-
-
-
-
-
-@RenderBody()
 @await Html.PartialAsync("_Notifications")
+
+
+
 
 
 @*FOOOOOOOOOOOTER*@
@@ -181,18 +203,20 @@
     
     <!-- inline CSS so we can style according to the colors picked by users -->
     <style>
+
+
         .jumbotron {
             color: #fff;
         }
 
-                .jumbotron:before {
+        .jumbotron:before {
             background: none;
         }
 
 
-.company-name {
-    font-size: 5rem; /* Adjust the size as desired */
-}
+        .company-name {
+             font-size: 5rem; /* Adjust the size as desired */
+        }
 
 
         @*NavBarrrrrrr*@
@@ -205,17 +229,27 @@
             transition: background-color 0.3s ease; /* Glidende overgang, når du scroller */
         }
 
+
+        
+
+        
         body {
-            padding-top: 80px; /* Tilføj polstring, så indholdet ikke starter under navbaren */
+            padding-top: 60px; /* Tilføj polstring, så indholdet ikke starter under navbaren */
         }
+
+        
+        .content-wrapper {
+            padding-top: 80px; /* Adjust based on navbar height bring the renderbody below navbar*/
+        }  
+
 
         .navbar-nav .nav-link {
                 color: white; /* Set the text color to white */
-            }
+        }
 
         .navbar-nav .nav-link:hover {
                 color: @colorAccent1; /* Optional: Change hover color to accent color */
-            }
+        }
 
 
         .rectangle-1, .rectangle-2 {
@@ -288,6 +322,30 @@
             background: @colorGradient1;
             background: -webkit-linear-gradient(to right, @colorGradient1, @colorGradient2);
             background: linear-gradient(to right, @colorGradient1, @colorGradient2);
+        }
+
+
+
+
+                /* Ensure body and html take full height */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        /* Make content-wrapper take up the remaining space */
+        .content-wrapper {
+            min-height: calc(100vh - 200px); /* Adjust the '200px' based on your navbar and footer height */
+            padding-bottom: 40px; /* Same as footer height */
+        }
+
+        /* Footer styles */
+        footer.mastfoot {
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            height: 40px; /* Adjust to your footer height */
+            background-color: white; /* Adjust based on color needs */
         }
     </style>
 

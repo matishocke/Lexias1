@@ -1,0 +1,9 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+	Layout = "master.cshtml";
+}
+<div style="padding: 90px 40px 0;">
+    <h1>@Model.Value("lexias")</h1>
+    <div>@Model.Value("text")</div>
+</div>

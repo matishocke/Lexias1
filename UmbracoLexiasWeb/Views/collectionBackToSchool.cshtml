@@ -1,0 +1,31 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+	Layout = "master.cshtml";
+}
+
+
+<!-- Features Section 1 -->
+<section id="features" class="py-5">
+    <div class="container-fluid">
+        <div class="row no-gutters">
+            <!-- Feature 1 -->
+            <div class="col-md-6">
+                <div class="feature-item">
+                    @{
+                        var pic1 = Model.Value<IPublishedContent>("image1");
+                        if (pic1 != null)
+                        {
+                            <img src="@pic1.Url()" class="img-fluid feature-image" alt='@pic1.Value("alt")' />
+                        }
+                        else
+                        {
+                            <img src="/path-to-default-image.jpg" class="img-fluid feature-image" alt="Default Image" />
+                        }
+                    }
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>

@@ -1,87 +1,106 @@
 ﻿using Dapr.Workflow;
 using Lexias.Services.OrderAPI.DaprWorkflow.Activities;
 using Lexias.Services.OrderAPI.DaprWorkflow.Activities.CompensatingActivities;
+using Shared.Dtos.Notification;
 using Shared.Dtos.OrderDto;
+using Shared.Dtos.PaymentDto;
+using Shared.Dtos.WarehouseDto;
 using Shared.Enum;
 using Shared.IntegrationEvents;
 
 namespace Lexias.Services.OrderAPI.DaprWorkflow
 {
+    //input of type OrderDto and produces an output of type OrderResultDto.
     public class OrderWorkflow : Workflow<OrderDto, OrderResultDto>
     {
-        private ILogger<OrderWorkflow> _logger;
-
-
-        // Parameterless constructor required by Dapr
-        public OrderWorkflow() { }
-
-
-        // Optional constructor with logger for testing or future expansion
-        public OrderWorkflow(ILogger<OrderWorkflow> logger)
-        {
-            _logger = logger;
-        }
-
-
-
-
-
-
-
+        //RunAsync// method is the core logic of the workflow
+        //WorkflowContext: Provides contextual information about the workflow, like workflow metadata and state.
+        //OrderDto This is the input data for the workflow
         public override async Task<OrderResultDto> RunAsync(WorkflowContext context, OrderDto orderDto)
         {
-            _logger.LogInformation($"Order workflow started for OrderId: {orderDto.OrderId}");
+            // Step 1: Set the order status to Confirmed
+            orderDto.Status = OrderStatus.Confirmed;
+            
+            //Notify
+            await context.CallActivityAsync(
+                nameof(NotifyActivity),
+                new Notification($"Order {orderDto.OrderId} received from {orderDto.CustomerDto.Name}.", orderDto));
 
-            try
+
+
+            // Step 2: Reserve Items (sending parts of OrderItems)
+            var itemsToReserve = new InventoryRequestDto(orderDto.OrderItems.Select(item => new OrderItemDto
             {
-                // Step 1: Create Order
-                var createOrderResult = await context.CallActivityAsync<CreateOrderActivity>(nameof(CreateOrderActivity), orderDto);
-                if (!createOrderResult.IsSuccessful)
-                {
-                    _logger.LogError($"Failed to create order for OrderId: {orderDto.OrderId}");
-                    return createOrderResult;
-                }
+                ProductId = item.ProductId,
+                Quantity = item.Quantity,
+                ItemType = item.ItemType
+            }).ToList());
 
-                // Step 2: Reserve Items
-                await context.CallActivityAsync<ReserveItemsActivity>(nameof(ReserveItemsActivity), orderDto);
-                var itemsReservedEvent = await context.WaitForExternalEventAsync<ItemsReservedResultEvent>("ItemsReservedEvent", TimeSpan.FromMinutes(5));
-                if (!itemsReservedEvent.IsSuccessful)
-                {
-                    _logger.LogError($"Item reservation failed for OrderId: {orderDto.OrderId}");
-                    await context.CallActivityAsync<BackStockItemsActivity>(nameof(BackStockItemsActivity), orderDto); // Compensate
-                    return new OrderResultDto(orderDto.OrderId, OrderStatus.InsufficientInventory, false, "Item reservation failed");
-                }
+            await context.CallActivityAsync(nameof(ReserveItemsActivity), itemsToReserve);
 
-                // Step 3: Process Payment
-                await context.CallActivityAsync<ProcessPaymentActivity>(nameof(ProcessPaymentActivity), orderDto);
-                var paymentEvent = await context.WaitForExternalEventAsync<PaymentProcessedResultEvent>("PaymentEvent", TimeSpan.FromMinutes(5));
-                if (!paymentEvent.IsSuccessful)
-                {
-                    _logger.LogError($"Payment failed for OrderId: {orderDto.OrderId}");
-                    await context.CallActivityAsync<IssueRefundActivity>(nameof(IssueRefundActivity), orderDto); // Compensate
-                    return new OrderResultDto(orderDto.OrderId, OrderStatus.PaymentFailed, false, "Payment failed");
-                }
+            //Notify
+            await context.CallActivityAsync(
+                nameof(NotifyActivity),
+                new Notification($"Waiting for reservation confirmation for Order {orderDto.OrderId}.", orderDto));
 
-                // Step 4: Ship Items
-                await context.CallActivityAsync<ShipItemsActivity>(nameof(ShipItemsActivity), orderDto);
-                var itemsShippedEvent = await context.WaitForExternalEventAsync<ItemsShippedResultEvent>("ItemsShippedEvent", TimeSpan.FromMinutes(5));
-                if (!itemsShippedEvent.IsSuccessful)
-                {
-                    _logger.LogError($"Shipping failed for OrderId: {orderDto.OrderId}");
-                    await context.CallActivityAsync<UnReserveItemsActivity>(nameof(UnReserveItemsActivity), orderDto); // Compensate
-                    return new OrderResultDto(orderDto.OrderId, OrderStatus.ShippingItemsFailed, false, "Shipping failed");
-                }
 
-                // Step 5: Complete Order
-                await context.CallActivityAsync<CompleteOrderActivity>(nameof(CompleteOrderActivity), orderDto);
-                _logger.LogInformation("Order workflow completed successfully.");
-                return new OrderResultDto(orderDto.OrderId, OrderStatus.Completed, true, "Order completed successfully");
-            }
-            catch (Exception ex)
+
+            // Step 3: Wait for Items Reserved Event
+            var reservationResult = await context.WaitForExternalEventAsync<ItemsReservedResultEvent>(
+                "ItemReservedEvent", TimeSpan.FromDays(1));
+
+            if (reservationResult.State == ResultState.Failed)
             {
-                _logger.LogError(ex, "Order workflow encountered an error.");
-                return new OrderResultDto(orderDto.OrderId, OrderStatus.Error, false, "Workflow failed");
+                // Reservation failed
+                await context.CallActivityAsync(nameof(NotifyActivity),
+                    new Notification($"Reservation failed for Order {orderDto.OrderId}.", orderDto));
+
+                return new OrderResultDto
+                {
+                    OrderId = orderDto.OrderId,
+                    OrderStatus = OrderStatus.Cancelled,
+                    Message = "Reservation failed"
+                };
             }
+
+
+            // Step 4: Process Payment
+            orderDto.Status = OrderStatus.CheckingPayment;
+            var paymentDto = new PaymentDto { Amount = orderDto.TotalAmount };
+            await context.CallActivityAsync(nameof(ProcessPaymentActivity), paymentDto);
+            
+            
+            //Notify
+            await context.CallActivityAsync(
+                nameof(NotifyActivity),
+                new Notification($"Waiting for payment for Order {orderDto.OrderId}.", orderDto));
+
+            // Step 5: Wait for Payment Result
+            var paymentResult = await context.WaitForExternalEventAsync<PaymentProcessedResultEvent>(
+                "PaymentEvent", TimeSpan.FromDays(1));
+
+            if (paymentResult.State == ResultState.Failed)
+            {
+                // Payment failed, unreserve items
+                await context.CallActivityAsync(nameof(UnReserveItemsActivity), itemsToReserve);
+                await context.CallActivityAsync(nameof(NotifyActivity),
+                    new Notification($"Payment failed for Order {orderDto.OrderId}. Unreserving items.", orderDto));
+
+                return new OrderResultDto
+                {
+                    OrderId = orderDto.OrderId,
+                    OrderStatus = OrderStatus.Cancelled,
+                    Message = "Payment failed"
+                };
+            }
+
+            // Step 6: Finalize Order
+            orderDto.Status = OrderStatus.Confirmed;
+            await context.CallActivityAsync(
+                nameof(NotifyActivity),
+                new Notification($"Order {orderDto.OrderId} successfully completed.", orderDto));
+
+            return new OrderResultDto { OrderId = orderDto.OrderId, OrderStatus = OrderStatus.Confirmed };
         }
     }
 }

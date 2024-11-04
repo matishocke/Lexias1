@@ -4,6 +4,7 @@
 	Layout = "master.cshtml";
 }
 
-@Model.Value("text")
-
-@Model.Value("mainContent")
+<div style="padding: 90px 40px 0;">
+    <h1>@Model.Value("text")</h1>
+    <div>@Model.Value("mainContent")</div>
+</div>

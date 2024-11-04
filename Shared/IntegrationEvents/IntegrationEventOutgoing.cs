@@ -7,26 +7,44 @@ using System.Threading.Tasks;
 
 namespace Shared.IntegrationEvents
 {
-    public record IntegrationEventOutgoing
+    public abstract class IntegrationEventOutgoing
     {
         public string CorrelationId { get; set; } = string.Empty;
     }
 
-    public record ProcessPaymentEvent : IntegrationEventOutgoing
+    public class ProcessPaymentEvent : IntegrationEventOutgoing
     {
         public decimal Amount { get; set; }
-        public string OrderId { get; set; }
     }
 
-    public record ReserveItemsEvent : IntegrationEventOutgoing
+    public class ReserveItemsEvent : IntegrationEventOutgoing
     {
-        public List<OrderItemDto> Items { get; set; }
-        public string OrderId { get; set; }
+        public List<OrderItemDto> OrderItems { get; set; } = new();
+        public int Quantity { get; set; }
     }
 
-    public record ShipItemsEvent : IntegrationEventOutgoing
-    {
-        public List<OrderItemDto> Items { get; set; }
-        public string OrderId { get; set; }
-    }
+    
+
+    //    public record IntegrationEventOutgoing
+    //    {
+    //        public string CorrelationId { get; set; } = string.Empty;
+    //    }
+
+    //    public record ProcessPaymentEvent : IntegrationEventOutgoing
+    //    {
+    //        public decimal Amount { get; set; }
+    //        public string OrderId { get; set; }
+    //    }
+
+    //    public record ReserveItemsEvent : IntegrationEventOutgoing
+    //    {
+    //        public List<OrderItemDto> Items { get; set; }
+    //        public string OrderId { get; set; }
+    //    }
+
+    //    public record ShipItemsEvent : IntegrationEventOutgoing
+    //    {
+    //        public List<OrderItemDto> Items { get; set; }
+    //        public string OrderId { get; set; }
+    //    }
 }

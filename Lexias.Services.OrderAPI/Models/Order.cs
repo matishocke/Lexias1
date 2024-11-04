@@ -9,7 +9,7 @@ namespace Lexias.Services.OrderAPI.Models
         public List<OrderItem> OrderItems { get; set; }
         public DateTime OrderDate { get; set; }
         public Customer Customer { get; set; }
-        public OrderStatus OrderStatus { get; set; }
+        public OrderStatus OrderStatus { get; set; } = OrderStatus.Pending;
         public decimal TotalAmount { get; set; }
     }
 }

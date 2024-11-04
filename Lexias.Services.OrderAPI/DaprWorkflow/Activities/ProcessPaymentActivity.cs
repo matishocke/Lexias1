@@ -1,31 +1,22 @@
 ﻿using Dapr.Workflow;
-using Lexias.Services.OrderAPI.Data;
-using Lexias.Services.OrderAPI.Models;
-using Shared.Enum;
+using Shared.Dtos.PaymentDto;
 
 namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
 {
-    public class ProcessPaymentActivity : WorkflowActivity<Order, OrderResult>
+    public class ProcessPaymentActivity : WorkflowActivity<PaymentDto, object?>
     {
-        private readonly AppDbContext _dbContext;
+        private readonly ILogger<ProcessPaymentActivity> _logger;
 
-        public ProcessPaymentActivity(AppDbContext dbContext)
+        public ProcessPaymentActivity(ILogger<ProcessPaymentActivity> logger)
         {
-            _dbContext = dbContext;
+            _logger = logger;
         }
 
-        public override async Task<OrderResult> RunAsync(WorkflowActivityContext context, Order order)
+        public override async Task<object?> RunAsync(WorkflowActivityContext context, PaymentDto paymentDto)
         {
-            var existingOrder = await _dbContext.Orders.FindAsync(order.OrderId);
-
-            if (existingOrder == null)
-                return new OrderResult(order.OrderId, OrderStatus.PaymentFailed, false, "Order not found");
-
-            // Simulate payment processing
-            existingOrder.OrderStatus = OrderStatus.PaymentSuccess;
-            await _dbContext.SaveChangesAsync();
-
-            return new OrderResult(existingOrder.OrderId, existingOrder.OrderStatus, true, "Payment processed successfully");
+            _logger.LogInformation($"Processing payment for OrderId: {context.InstanceId}, Amount: {paymentDto.Amount}");
+            await Task.CompletedTask;
+            return null;
         }
     }
 }

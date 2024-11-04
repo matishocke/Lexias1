@@ -1,0 +1,6 @@
+@Lexias.Services.WarehouseAPI_HostAddress = http://localhost:5177
+
+GET {{Lexias.Services.WarehouseAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
