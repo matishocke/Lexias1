@@ -15,7 +15,7 @@ var isLoggedIn = Context.User?.Identity?.IsAuthenticated ?? false;
 var logoutModel = new PostRedirectModel();
 }
 <div style="margin: 100px;"> 
-	<div class="p-2 bg-black text-black rounded">
+	<div class="p-2 bg-black text-white rounded">
 		@if (isLoggedIn)
 		{
 			<div class="login-status">

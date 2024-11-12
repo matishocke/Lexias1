@@ -1,0 +1,41 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Cms.Core.Services;
+
+@inject IMemberService MemberService
+
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+	Layout = "master.cshtml";
+}
+
+@{
+	var isLoggedIn = Context.User?.Identity?.IsAuthenticated ?? false;
+}
+
+@if (isLoggedIn)
+{
+    var user = Context.User.Identity;
+    var username = user.GetUserName();
+    var member = MemberService.GetByUsername(username);
+
+    if (member != null)
+    {
+        <h2>@("Welcome, " + member.GetValue("firstName"))</h2>
+        <p><strong>Full Name:</strong> @(member.GetValue("firstName") + " " + member.GetValue("lastName"))</p>
+        <p><strong>Address:</strong> @member.GetValue("address"), @member.GetValue("city") @member.GetValue("zip")</p>
+        <p><strong>Mobile:</strong> @member.GetValue("mobile")</p>
+
+        @if (member.GetValue<string>("photo") is string memberImage && !string.IsNullOrEmpty(memberImage))
+        {
+            <img src="@memberImage" alt="Profile Photo" class="img-fluid rounded shadow-sm" style="max-width: 150px;" />
+        }
+    }
+    else
+    {
+        <p>Could not retrieve your profile information.</p>
+    }
+}
+else
+{
+    <p>Please log in to view your profile.</p>
+}

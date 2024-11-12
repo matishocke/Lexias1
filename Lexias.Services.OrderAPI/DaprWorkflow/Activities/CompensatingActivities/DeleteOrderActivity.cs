@@ -5,6 +5,7 @@ using Shared.Enum;
 
 namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities.CompensatingActivities
 {
+    //string is orderID as input
     public class DeleteOrderActivity : WorkflowActivity<string, OrderResult>
     {
         private readonly AppDbContext _dbContext;

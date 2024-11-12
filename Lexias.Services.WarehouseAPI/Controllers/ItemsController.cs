@@ -30,6 +30,7 @@ namespace Lexias.Services.WarehouseAPI.Controllers
         //Lytter
         //[Topic(WarehouseChannel.Channel, WarehouseChannel.Topics.Reservation)] attribute is essentially making
         //this endpoint a //Listener// for events on that channel and topic.
+        //NOTE: we HAVE TO provoke ItemsReservedResultEvent back either succed nor failed because the workflow is WAITING
         [Topic(WarehouseChannel.Channel, WarehouseChannel.Topics.Reservation)]
         [HttpPost]
         public async Task<IActionResult> ReserveItems([FromBody] ReserveItemsEvent reserveItemsEvent) //[FromBody] with this we will take data from the endpoint to use them right here 
@@ -56,9 +57,10 @@ namespace Lexias.Services.WarehouseAPI.Controllers
 
             //Failed
             //- If item is not available
+            //NOTE: we HAVE TO provoke ItemsReservedResultEvent back either succed nor failed because the workflow is WAITING
             if (!itemsAvailable)
             {
-                var reservationFailedResponse = new ItemsReservationFailedEvent
+                var itemReservationFailedEvent = new ItemsReservationFailedEvent
                 {
                     CorrelationId = reserveItemsEvent.CorrelationId,
                     State = ResultState.Failed,
@@ -70,10 +72,26 @@ namespace Lexias.Services.WarehouseAPI.Controllers
                 await _daprClient.PublishEventAsync(
                     WarehouseChannel.Channel,
                     WarehouseChannel.Topics.ReservationFailed,
-                    reservationFailedResponse);
+                    itemReservationFailedEvent);
 
-                _logger.LogInformation($"Reservation failed for Order: {reservationFailedResponse.CorrelationId}, Reason: {reservationFailedResponse.Reason}");
-                return BadRequest(reservationFailedResponse);
+
+                //we going to make a publish itemsReservedResultEvent as a failed scenario with a State = ResultState.Failed,
+                // Publish ItemsReservedResultEvent to the workflow with a failed state
+                var itemsReservedResultEvent2failed = new ItemsReservedResultEvent
+                {
+                    CorrelationId = reserveItemsEvent.CorrelationId,
+                    State = ResultState.Failed
+                };
+
+                await _daprClient.PublishEventAsync(
+                    WorkflowChannel.Channel,
+                    WorkflowChannel.Topics.ItemsReserveResult,
+                    itemsReservedResultEvent2failed);
+
+
+
+                _logger.LogInformation($"Reservation failed for Order: {itemReservationFailedEvent.CorrelationId}, Reason: {itemReservationFailedEvent.Reason}");
+                return BadRequest(itemReservationFailedEvent);
             }
 
 
@@ -81,6 +99,7 @@ namespace Lexias.Services.WarehouseAPI.Controllers
             // Update inventory for each item
             foreach (var item in reserveItemsEvent.OrderItemsList)
             {
+                //if success so each product sell some of its Quantity
                 var product = _context.Orders.FirstOrDefault(p => p.ProductId == item.ProductId);
                 if (product != null)
                 {
@@ -109,7 +128,10 @@ namespace Lexias.Services.WarehouseAPI.Controllers
             
             
             
-            _logger.LogInformation($"Items reserved: {itemsReservedResultEvent.CorrelationId}, State: {itemsReservedResultEvent.State}");
+            _logger.LogInformation($"Items reserved: " +
+                $"{itemsReservedResultEvent.CorrelationId}," +
+                $" State: {itemsReservedResultEvent.State}");
+
             return Ok(itemsReservedResultEvent);
         }
 
@@ -118,15 +140,17 @@ namespace Lexias.Services.WarehouseAPI.Controllers
 
 
 
-
+        //Here we should products put back in stock
         [Topic(WarehouseChannel.Channel, WarehouseChannel.Topics.ReservationFailed)]
         [HttpPost]
-        public async Task<IActionResult> UnreserveItems([FromBody] ItemsReservationFailedEvent unreserveItemsRequest)
+        public async Task<IActionResult> UnreserveItems([FromBody] ItemsReservationFailedEvent itemsReservationFailedEvent)
         {
-            _logger.LogInformation($"Unreserve request received: {unreserveItemsRequest.CorrelationId}");
-
+            _logger.LogInformation($"Unreserve request received: {itemsReservationFailedEvent.CorrelationId}");
+            
+            //itemsReservationFailedEvent.State = ResultState.Failed;  this we already recieved by the message from the Topic
+            
             // Logic to unreserve items in the inventory
-            foreach (var item in unreserveItemsRequest.OrderItems)
+            foreach (var item in itemsReservationFailedEvent.OrderItems)
             {
                 var product = _context.Orders.FirstOrDefault(p => p.ProductId == item.ProductId);
                 if (product != null)

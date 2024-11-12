@@ -20,8 +20,6 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
         public override async Task<OrderResultDto> RunAsync(WorkflowContext workflowContext, OrderDto orderDto)
         {
 
-
-
             // Step 1: Set the order status to Confirmed
             orderDto.Status = OrderStatus.Confirmed;
             
@@ -31,18 +29,28 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
                 new Notification($"Order {orderDto.OrderId} received from {orderDto.CustomerDto.Name}.",
                 orderDto));
 
-
             
 
             // Step 2: Create Order in Database
             var createOrderResult = await workflowContext.CallActivityAsync<OrderResultDto>(
                 nameof(CreateOrderActivity),
-                orderDto);  
+                orderDto);
 
 
-            // If creating the order fails, return with an error message but order is still in database and not deleted
+            // If creating the order fails, delete it and return with an error message
             if (createOrderResult.OrderStatus == OrderStatus.Cancelled)
             {
+                // Call DeleteOrderActivity to remove the failed order from the database
+                await workflowContext.CallActivityAsync(
+                    nameof(DeleteOrderActivity),
+                    orderDto.OrderId);
+
+                // Notify of order cancellation
+                await workflowContext.CallActivityAsync(
+                    nameof(NotifyActivity),
+                    new Notification($"Order {orderDto.OrderId} creation failed and was deleted.", orderDto));
+
+                // Return the OrderResult being Cancelledd
                 return new OrderResultDto
                 {
                     OrderId = orderDto.OrderId,
@@ -68,7 +76,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
 
 
 
-
+            //Warehouse 
             //// Step 3: Reserve Items (Sending List of OrderItems)
             var orderItemsInsideOrderDto = orderDto.OrderItemsList;
 
@@ -81,25 +89,39 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
                 new Notification($"Waiting for reservation confirmation for Order {orderDto.OrderId}.", 
                 orderDto));
 
-
+            //ReserveItemsActivity has Event is going to bring ItemsReservedResultEvent
 
             // Step 4: Wait for Items Reserved Event (Response)
             //this will take the data from WorkflowController because WorkflowController is listening to other Services
-            var reservationResult = await workflowContext.WaitForExternalEventAsync<ItemsReservedResultEvent>(
-                WorkflowChannelEvents.ItemReservedEvent,
-                TimeSpan.FromDays(1));
+            ItemsReservedResultEvent reservationResult;
+            try
+            {
+                // Attempt to wait for the reservation event for up to 1 day
+                reservationResult = await workflowContext.WaitForExternalEventAsync<ItemsReservedResultEvent>(
+                    WorkflowChannelEvents.ItemReservedEvent,
+                    TimeSpan.FromDays(1));
+            }
+            catch (TimeoutException) //Failed Timing
+            {
+                // If timeout occurs, set reservationResult as failed manually
+                reservationResult = new ItemsReservedResultEvent
+                {
+                    CorrelationId = orderDto.OrderId,
+                    State = ResultState.Failed,
+                };
+            }
 
 
-
-            //Failed Scnario
+            //Handle Failed Scnario
             if (reservationResult.State == ResultState.Failed)
             {
                 await workflowContext.CallActivityAsync(nameof(NotifyActivity),
                     new Notification($"Reservation failed for Order {orderDto.OrderId}.", orderDto));
 
 
-                //Failed CreateOrder delete database activity ----- DeleteOrderActivity
-                //Failed Reservation Call activity ------
+                // Compensate: Delete the created order from the database
+                await workflowContext.CallActivityAsync(nameof(DeleteOrderActivity), orderDto.OrderId);
+
 
 
                 return new OrderResultDto
@@ -109,6 +131,12 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
                     Message = "Reservation failed"
                 };
             }
+
+
+
+
+
+
 
 
 
