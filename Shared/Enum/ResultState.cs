@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Shared.Enum
 {
+    //redd
     public enum ResultState
     {
         Succeeded,

@@ -37,7 +37,7 @@ builder.Services.AddDaprWorkflow(options =>
     options.RegisterWorkflow<OrderWorkflow>();
 
     // "Success" Activity
-    //options.RegisterActivity<CreateOrderActivity>();
+    options.RegisterActivity<CreateOrderActivity>();
     options.RegisterActivity<NotifyActivity>();
     options.RegisterActivity<ReserveItemsActivity>();
     options.RegisterActivity<ProcessPaymentActivity>();

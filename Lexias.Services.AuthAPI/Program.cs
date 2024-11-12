@@ -1,5 +1,7 @@
 using Lexias.Services.AuthAPI.Data;
 using Lexias.Services.AuthAPI.Models;
+using Lexias.Services.AuthAPI.Service;
+using Lexias.Services.AuthAPI.Service.IService;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +14,8 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
 });
 
 
-//we want that JwtOptions has same values from appsettings
+//we want that JwtOptions class has same Values from appsettings : Secret, Issuer, and Audience values in appsettings.json will be set as properties in the JwtOptions class
+//this will also Map the Values to the JwtOptions Class from appsettings.json
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("ApiSettings:JwtOptions"));
 
 
@@ -23,6 +26,10 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>().
 
 
 builder.Services.AddControllers();
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -34,11 +41,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+} 
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();   //this been added cuz we need for authentication
+//Authentication comes before Authorization
+app.UseAuthentication();   //this been added cuz we need for authentication //Enables JWT authentication.
 app.UseAuthorization();
 
 app.MapControllers();

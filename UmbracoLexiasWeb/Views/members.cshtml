@@ -1,0 +1,89 @@
+﻿@using Umbraco.Cms.Core.Services
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@inject IMemberService MemberService
+
+
+@{
+    Layout = "master.cshtml";
+    var activeMembers = MemberService.GetMembersByGroup("Active");
+    var prospectMembers = MemberService.GetMembersByGroup("Prospect");
+}
+
+<div class="row">
+    <div class="col-lg-10 offset-lg-1">
+        <div class="p-4 bg-dark text-white rounded shadow-sm">
+            
+            <!-- Prospect Members Section -->
+            <section aria-labelledby="prospect-members-heading" class="mb-5">
+                <h4 id="prospect-members-heading" class="mb-3 border-bottom pb-2">Prospect Members</h4>
+                @if (prospectMembers.Any())
+                {
+                    <div class="row row-cols-1 row-cols-md-2 g-3">
+                        @foreach (var prospect in prospectMembers) 
+                        {
+                            <div class="col">
+                                <div class="member-card p-3 bg-success-subtle border border-secondary rounded-2 h-100">
+                                    <p>
+                                        <strong>
+                                            @(prospect.GetValue("firstName") + " " 
+                                            + prospect.GetValue("lastName"))
+                                            </strong><br />
+                                        <span class="text-muted">Mobile:</span> @prospect.GetValue("mobile")
+                                    </p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No prospect members found.</p>
+                }
+            </section>
+
+            <!-- Active Members Section -->
+            <section aria-labelledby="active-members-heading">
+                <h4 id="active-members-heading" class="mb-3 border-bottom pb-2">Active Members</h4>
+                @if (activeMembers.Any())
+                {
+                    <div class="row row-cols-1 row-cols-md-2 g-3">
+                        @foreach (var active in activeMembers) 
+                        {
+                            <div class="col">
+                                <div class="member-card p-3 bg-success-subtle border border-secondary rounded-2 h-100">
+                                    <p>
+                                        <strong>@(active.GetValue("firstName") + " " + active.GetValue("lastName"))</strong><br />
+                                        <span class="text-muted">Address:</span> @active.GetValue("address")<br />
+                                        <span class="text-muted">Location:</span> @(active.GetValue("postCode") + " " + active.GetValue("city"))<br />
+                                        <span class="text-muted">Mobile:</span> @active.GetValue("mobile")
+                                    </p>
+                                    
+                                    @if (active.GetValue<string>("photo") is string memberImage && !string.IsNullOrEmpty(memberImage))
+                                    {
+                                        <img src="@memberImage" alt="Member Photo" class="img-fluid mt-2 rounded shadow-sm" style="max-width: 150px;" />
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No active members found.</p>
+                }
+            </section>
+        </div>
+    </div>
+</div>
+
+<style>
+    .member-card {
+        transition: transform 0.2s ease-in-out;
+        min-height: 180px;
+    }
+    .member-card:hover {
+        transform: scale(1.02);
+        background-color: black; /* Slight color change on hover */
+    }
+</style>

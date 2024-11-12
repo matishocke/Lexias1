@@ -27,19 +27,25 @@ namespace Lexias.Services.WarehouseAPI.Controllers
 
 
 
-
-
+        //Lytter
+        //[Topic(WarehouseChannel.Channel, WarehouseChannel.Topics.Reservation)] attribute is essentially making
+        //this endpoint a //Listener// for events on that channel and topic.
         [Topic(WarehouseChannel.Channel, WarehouseChannel.Topics.Reservation)]
         [HttpPost]
-        public async Task<IActionResult> ReserveItems([FromBody] ReserveItemsEvent reserveItemsRequest)
+        public async Task<IActionResult> ReserveItems([FromBody] ReserveItemsEvent reserveItemsEvent) //[FromBody] with this we will take data from the endpoint to use them right here 
         {
-            _logger.LogInformation($"Inventory request received: {reserveItemsRequest.CorrelationId}");
+            _logger.LogInformation($"Inventory request received: {reserveItemsEvent.CorrelationId}");
 
-            // Check if all items are available in the inventory
+            //+ Check if all items are available in the inventory
             bool itemsAvailable = true;
-            foreach (var item in reserveItemsRequest.Items)
+
+
+            foreach (var item in reserveItemsEvent.OrderItemsList)
             {
+                //Check this Product exist
                 var product = _context.Orders.FirstOrDefault(p => p.ProductId == item.ProductId);
+
+                //Check are there enough of these Product
                 if (product == null || product.StockQuantity < item.Quantity)
                 {
                     itemsAvailable = false;
@@ -47,45 +53,67 @@ namespace Lexias.Services.WarehouseAPI.Controllers
                 }
             }
 
+
+            //Failed
+            //- If item is not available
             if (!itemsAvailable)
             {
                 var reservationFailedResponse = new ItemsReservationFailedEvent
                 {
-                    CorrelationId = reserveItemsRequest.CorrelationId,
+                    CorrelationId = reserveItemsEvent.CorrelationId,
                     State = ResultState.Failed,
-                    Items = reserveItemsRequest.Items,
+                    OrderItems = reserveItemsEvent.OrderItemsList,
                     Reason = "Insufficient inventory"
                 };
 
-                await _daprClient.PublishEventAsync(WarehouseChannel.Channel, WarehouseChannel.Topics.ReservationFailed, reservationFailedResponse);
+                //Sender //now from here we will publish the data back
+                await _daprClient.PublishEventAsync(
+                    WarehouseChannel.Channel,
+                    WarehouseChannel.Topics.ReservationFailed,
+                    reservationFailedResponse);
+
                 _logger.LogInformation($"Reservation failed for Order: {reservationFailedResponse.CorrelationId}, Reason: {reservationFailedResponse.Reason}");
                 return BadRequest(reservationFailedResponse);
             }
 
+
+            //Success
             // Update inventory for each item
-            foreach (var item in reserveItemsRequest.Items)
+            foreach (var item in reserveItemsEvent.OrderItemsList)
             {
                 var product = _context.Orders.FirstOrDefault(p => p.ProductId == item.ProductId);
                 if (product != null)
                 {
-                    product.StockQuantity -= item.Quantity;
+                    //ensures we never end up with negative stock (Math.Max)
+                    product.StockQuantity = Math.Max(0, product.StockQuantity - item.Quantity);
                     _context.Orders.Update(product);
                 }
             }
 
             await _context.SaveChangesAsync();
 
+
+
             // Publish successful reservation event
-            var itemsReservedResponse = new ItemsReservedResultEvent
+            var itemsReservedResultEvent = new ItemsReservedResultEvent
             {
-                CorrelationId = reserveItemsRequest.CorrelationId,
+                CorrelationId = reserveItemsEvent.CorrelationId,
                 State = ResultState.Succeeded
             };
-
-            await _daprClient.PublishEventAsync(WorkflowChannel.Channel, WorkflowChannel.Topics.ItemsReserveResult, itemsReservedResponse);
-            _logger.LogInformation($"Items reserved: {itemsReservedResponse.CorrelationId}, State: {itemsReservedResponse.State}");
-            return Ok(itemsReservedResponse);
+            
+            //Sender //now from here we will publish the data back
+            await _daprClient.PublishEventAsync(
+                WorkflowChannel.Channel,
+                WorkflowChannel.Topics.ItemsReserveResult, 
+                itemsReservedResultEvent);
+            
+            
+            
+            _logger.LogInformation($"Items reserved: {itemsReservedResultEvent.CorrelationId}, State: {itemsReservedResultEvent.State}");
+            return Ok(itemsReservedResultEvent);
         }
+
+
 
 
 
@@ -98,12 +126,12 @@ namespace Lexias.Services.WarehouseAPI.Controllers
             _logger.LogInformation($"Unreserve request received: {unreserveItemsRequest.CorrelationId}");
 
             // Logic to unreserve items in the inventory
-            foreach (var item in unreserveItemsRequest.Items)
+            foreach (var item in unreserveItemsRequest.OrderItems)
             {
                 var product = _context.Orders.FirstOrDefault(p => p.ProductId == item.ProductId);
                 if (product != null)
                 {
-                    product.StockQuantity += item.Quantity;
+                    product.StockQuantity = product.StockQuantity + item.Quantity;
                     _context.Orders.Update(product);
                 }
                 _logger.LogInformation($"Unreserving item: {item.ItemType}, Quantity: {item.Quantity}");

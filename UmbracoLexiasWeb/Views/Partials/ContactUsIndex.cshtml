@@ -1,0 +1,44 @@
+﻿@using UmbracoLexiasWeb.Models.ViewModels
+@model IEnumerable<ContactUsViewModel>
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1 class="text-white">Contact Messages (For Employees Only)</h1>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        @if (!Model.Any())
+        {
+            <p>No contact messages available for employees to view.</p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Subject</th>
+                        <th>Message</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.Email</td>
+                            <td>@item.Subject</td>
+                            <td>@item.Message</td>
+                            <td>@item.CreatedAt.ToString("g")</td> <!-- Formats the date nicely -->
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>

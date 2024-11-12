@@ -8,12 +8,17 @@ using System.Threading.Tasks;
 
 namespace Shared.IntegrationEvents
 {
+    //These work as Result/Response
     public abstract class IntegrationEventIncoming
     {
         public string CorrelationId { get; set; } = string.Empty;
         public ResultState State { get; set; } = ResultState.Failed;
     }
 
+
+
+
+    //Result Scenarios
     public class PaymentProcessedResultEvent : IntegrationEventIncoming
     {
         public decimal Amount { get; set; }
@@ -23,9 +28,13 @@ namespace Shared.IntegrationEvents
     {
     }
 
+
+
+
+    //Failed Scenarios
     public class ItemsReservationFailedEvent : IntegrationEventIncoming
     {
-        public List<OrderItemDto> Items { get; set; } = new();
+        public List<OrderItemDto> OrderItems { get; set; } = new();
         public string Reason { get; set; } = string.Empty;
     }
 

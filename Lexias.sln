@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexias.Services.PaymentAPI"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexias.Services.WarehouseAPI", "Lexias.Services.WarehouseAPI\Lexias.Services.WarehouseAPI.csproj", "{0B9E7C2D-0FD1-4873-B6D8-EDE7D28C94D5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexias.Services.ContactUsAPI", "Lexias.Services.ContactUsAPI\Lexias.Services.ContactUsAPI.csproj", "{3B83FF4F-CD4D-4EAB-B6B2-E53958A9637C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{0B9E7C2D-0FD1-4873-B6D8-EDE7D28C94D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B9E7C2D-0FD1-4873-B6D8-EDE7D28C94D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B9E7C2D-0FD1-4873-B6D8-EDE7D28C94D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B83FF4F-CD4D-4EAB-B6B2-E53958A9637C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B83FF4F-CD4D-4EAB-B6B2-E53958A9637C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B83FF4F-CD4D-4EAB-B6B2-E53958A9637C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B83FF4F-CD4D-4EAB-B6B2-E53958A9637C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,6 +91,7 @@ Global
 		{19870CF6-B915-4E2F-AC53-0FB2B09CA3AA} = {EBD92803-0C99-4203-A676-16D29D969FE6}
 		{3FEE65A3-FAEB-4458-B4E1-3FDECD3A239E} = {B3506B9C-A17E-4FBA-9E1F-38D678C76DFE}
 		{0B9E7C2D-0FD1-4873-B6D8-EDE7D28C94D5} = {B3506B9C-A17E-4FBA-9E1F-38D678C76DFE}
+		{3B83FF4F-CD4D-4EAB-B6B2-E53958A9637C} = {B3506B9C-A17E-4FBA-9E1F-38D678C76DFE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {98DD9D17-A2E3-4957-B646-B396A1780D82}

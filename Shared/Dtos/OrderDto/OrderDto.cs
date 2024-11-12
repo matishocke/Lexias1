@@ -10,7 +10,7 @@ namespace Shared.Dtos.OrderDto
     public class OrderDto
     {
         public string OrderId { get; set; }
-        public List<OrderItemDto> OrderItems { get; set; }
+        public List<OrderItemDto> OrderItemsList { get; set; }
         public DateTime OrderDate { get; set; }
         public CustomerDto CustomerDto { get; set; }
         public OrderStatus Status { get; set; }

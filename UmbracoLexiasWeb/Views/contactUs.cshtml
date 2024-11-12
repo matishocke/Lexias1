@@ -1,0 +1,12 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using UmbracoLexiasWeb.Models.ViewModels
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+	Layout = "master.cshtml";
+}
+
+<div style="margin: 100px;">
+    @{
+        Html.RenderPartial("~/Views/Partials/ContactUs.cshtml", new ContactUsViewModel());
+    }
+</div>

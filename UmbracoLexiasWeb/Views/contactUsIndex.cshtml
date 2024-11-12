@@ -1,0 +1,46 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using UmbracoLexiasWeb.Models.ViewModels;
+@inject UmbracoLexiasWeb.Services.IService.IContactUsService _contactUsService;
+
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+
+@{
+    Layout = "master.cshtml"; // Use master layout
+
+    List<ContactUsViewModel> contactUsList = new List<ContactUsViewModel>(); // List for contact messages
+
+    try
+    {
+        // Get contact messages from the API
+        var contactUsDtoList = await _contactUsService.GetAllContactMessagesAsync();
+
+        if (contactUsDtoList != null && contactUsDtoList.Any())
+        {
+            // Map from ContactUsDto to ContactUsViewModel and create the list
+            contactUsList = contactUsDtoList.Select(x => new ContactUsViewModel
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Email = x.Email,
+                Subject = x.Subject,
+                Message = x.Message,
+                CreatedAt = x.CreatedAt
+            }).ToList();
+        }
+    }
+    catch (Exception ex)
+    {
+        // Handle error
+        <p>There was an error retrieving contact messages: @ex.Message</p>
+    }
+}
+
+@if (contactUsList.Any())
+{
+    <!-- Pass the contact messages list to the partial view -->
+    @Html.Partial("~/Views/Partials/ContactUsIndex.cshtml", contactUsList)
+}
+else
+{
+    <p>No contact messages available.</p>
+}

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Shared.IntegrationEvents
 {
+    //These work as the Request
     public abstract class IntegrationEventOutgoing
     {
         public string CorrelationId { get; set; } = string.Empty;
@@ -19,8 +20,9 @@ namespace Shared.IntegrationEvents
 
     public class ReserveItemsEvent : IntegrationEventOutgoing
     {
-        public List<OrderItemDto> OrderItems { get; set; } = new();
-        public int Quantity { get; set; }
+        public List<OrderItemDto> OrderItemsList { get; set; } = new();
+
+        //public int Quantity { get; set; }   //TROR IKKE denne er nødvendige fordi OrderItemDto indholder Quantity
     }
 
     

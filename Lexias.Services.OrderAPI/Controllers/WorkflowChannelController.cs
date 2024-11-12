@@ -1,5 +1,6 @@
 ﻿using Dapr;
 using Dapr.Client;
+using Lexias.Services.OrderAPI.DaprWorkflow.External;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Enum;
@@ -35,7 +36,10 @@ namespace Lexias.Services.OrderAPI.Controllers
 
 
             await _daprClient.RaiseWorkflowEventAsync
-                (paymentResponse.CorrelationId, _workflowComponentName, "PaymentEvent", paymentResponse);
+                (paymentResponse.CorrelationId,
+                _workflowComponentName,
+                WorkflowChannelEvents.PaymentEvent,
+                paymentResponse);
 
 
             _logger.LogInformation("Payment response sent to workflow");
@@ -48,12 +52,15 @@ namespace Lexias.Services.OrderAPI.Controllers
 
         [Topic(WorkflowChannel.Channel, WorkflowChannel.Topics.ItemsReserveResult)]
         [HttpPost]
-        public async Task<IActionResult> ReservationResult([FromBody] ItemsReservedResultEvent reservationResponse)
+        public async Task<IActionResult> ReservationResult([FromBody] ItemsReservedResultEvent itemsReservedResultEvent)
         {
-            _logger.LogInformation($"Reservation response received: ID: {reservationResponse.CorrelationId}");
+            _logger.LogInformation($"Reservation response received: ID: {itemsReservedResultEvent.CorrelationId}");
 
             await _daprClient.RaiseWorkflowEventAsync
-                (reservationResponse.CorrelationId, _workflowComponentName, "ItemReservedEvent", reservationResponse);
+                (itemsReservedResultEvent.CorrelationId,
+                _workflowComponentName,
+                WorkflowChannelEvents.ItemReservedEvent,
+                itemsReservedResultEvent);
             
             
             _logger.LogInformation("Reservation response sent to workflow");

@@ -18,9 +18,15 @@ builder.Services.AddHttpClient("CouponAPI", client =>
     client.BaseAddress = new Uri(builder.Configuration["BaseUrl"]); // BaseUrl from appsettings.json
 });
 
+// Add HttpClient Contact service
+builder.Services.AddHttpClient("ContactUsAPI", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["BaseUrlContactUs"]); // BaseUrl from appsettings.json
+});
+
 // Register your custom services
 builder.Services.AddScoped<ICouponService, CouponService>();
-
+builder.Services.AddScoped<IContactUsService, ContactUsService>();
 
 WebApplication app = builder.Build();
 

@@ -1,0 +1,14 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+	Layout = "master.cshtml";
+}
+<div style="margin: 100px;"> 
+    <div class="p-2 bg-black text-black rounded">
+        <div class="card">
+            <div class="card-body">
+                @Html.Partial("~/Views/Partials/MemberPartial/RegisterMembers.cshtml")
+            </div>
+        </div>
+    </div>    
+</div>

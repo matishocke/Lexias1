@@ -1,0 +1,45 @@
+﻿@using UmbracoLexiasWeb.Controller
+@using UmbracoLexiasWeb.Models.ViewModels
+@model ContactUsViewModel
+
+@if (TempData["success"] == null)
+{
+    // Vis formularen
+    @using (Html.BeginUmbracoForm<ContactUsSurfaceController>(nameof(ContactUsSurfaceController.Submit)))
+    {
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group">
+            <label asp-for="Name" class="control-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Email" class="control-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Subject" class="control-label"></label>
+            <input asp-for="Subject" class="form-control" />
+            <span asp-validation-for="Subject" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Message" class="control-label"></label>
+            <textarea asp-for="Message" class="form-control"></textarea>
+            <span asp-validation-for="Message" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Send" class="btn btn-primary" />
+        </div>
+    }
+}
+else
+{
+    // Vis en takke-besked
+    <p>Tak fordi du kontaktede os. Vi vender tilbage snart!</p>
+}

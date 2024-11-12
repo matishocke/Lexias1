@@ -1,12 +1,13 @@
 ﻿using Dapr.Client;
 using Dapr.Workflow;
+using Shared.Dtos.OrderDto;
 using Shared.Dtos.WarehouseDto;
 using Shared.IntegrationEvents;
 using Shared.Queues;
 
 namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
 {
-    public class ReserveItemsActivity : WorkflowActivity<InventoryRequestDto, object?>
+    public class ReserveItemsActivity : WorkflowActivity<List<OrderItemDto>, object?>
     {
         private readonly DaprClient _daprClient;
         private readonly ILogger<ReserveItemsActivity> _logger;
@@ -18,17 +19,19 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
         }
 
 
-
-        public override async Task<object?> RunAsync(WorkflowActivityContext context, InventoryRequestDto itemToReserve)
+        // itemToReserve = List<OrderItem>
+        public override async Task<object?> RunAsync(WorkflowActivityContext context, List<OrderItemDto> itemToReserve)
         {
             _logger.LogInformation($"Attempting to reserve items for Order: {context.InstanceId}");
 
             var reserveItemEvent = new ReserveItemsEvent 
             { 
                 CorrelationId = context.InstanceId, 
-                OrderItems = itemToReserve.ItemsRequested  //sender hele OrderItemS(quantity productid)
+                OrderItemsList = itemToReserve  //sender hele List<OrderItemS(quantity productid)>
             };
 
+
+            //sending now to the message Bus with use of dapr
             await _daprClient.PublishEventAsync(WarehouseChannel.Channel,
                                                 WarehouseChannel.Topics.Reservation,
                                                 reserveItemEvent);
