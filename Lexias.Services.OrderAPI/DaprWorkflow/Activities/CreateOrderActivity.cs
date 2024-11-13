@@ -19,6 +19,14 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
         {
             try
             {
+                //Calculate the totalPrice of the order
+                decimal totalAmount = 0;
+                foreach (var item in orderDto.OrderItemsList)
+                {
+                    totalAmount = totalAmount + item.Quantity * item.Price;
+                }
+
+
                 // Convert OrderDto to Order inside the activity
                 var order = new Order
                 {
@@ -40,7 +48,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
                         Address = orderDto.CustomerDto.Address,
                         PhoneNumber = orderDto.CustomerDto.PhoneNumber
                     },
-                    TotalAmount = orderDto.TotalAmount,
+                    TotalAmount = totalAmount,
                     OrderStatus = orderDto.Status
                 };
 

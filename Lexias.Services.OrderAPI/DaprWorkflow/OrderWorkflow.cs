@@ -76,6 +76,8 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
 
 
 
+
+
             //Warehouse 
             //// Step 3: Reserve Items (Sending List of OrderItems)
             var orderItemsInsideOrderDto = orderDto.OrderItemsList;
@@ -100,6 +102,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
                 reservationResult = await workflowContext.WaitForExternalEventAsync<ItemsReservedResultEvent>(
                     WorkflowChannelEvents.ItemReservedEvent,
                     TimeSpan.FromDays(1));
+
             }
             catch (TimeoutException) //Failed Timing
             {
@@ -123,7 +126,6 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
                 await workflowContext.CallActivityAsync(nameof(DeleteOrderActivity), orderDto.OrderId);
 
 
-
                 return new OrderResultDto
                 {
                     OrderId = orderDto.OrderId,
@@ -144,7 +146,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
 
 
 
-
+            //Payment
             // Step 5: Process Payment
             orderDto.Status = OrderStatus.CheckingPayment;
             var paymentDto = new PaymentDto { Amount = orderDto.TotalAmount };
