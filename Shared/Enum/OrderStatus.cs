@@ -6,10 +6,13 @@ namespace Shared.Enum
     public enum OrderStatus
     {
         Pending,
+        Received,
+        ReservingInventory,
+        InventoryReserved,
+        CheckingPayment,
         Confirmed,
         Shipped,
         Delivered,
-        Cancelled,
-        CheckingPayment
+        Cancelled
     }
 }

@@ -15,6 +15,9 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
             _dbContext = dbContext;
         }
 
+
+
+
         public override async Task<OrderResultDto> RunAsync(WorkflowActivityContext context, OrderDto orderDto)
         {
             try
@@ -60,7 +63,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
                 return new OrderResultDto
                 {
                     OrderId = order.OrderId,
-                    OrderStatus = OrderStatus.Confirmed,
+                    OrderStatus = OrderStatus.Pending,
                     Message = "Order created successfully."
                 };
             }

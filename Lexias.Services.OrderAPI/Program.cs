@@ -3,6 +3,8 @@ using Dapr.Workflow;
 using Lexias.Services.OrderAPI.DaprWorkflow;
 using Lexias.Services.OrderAPI.DaprWorkflow.Activities.CompensatingActivities;
 using Lexias.Services.OrderAPI.DaprWorkflow.Activities;
+using Microsoft.EntityFrameworkCore;
+using Lexias.Services.OrderAPI.Data;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +29,9 @@ builder.Services.AddControllers()
 #endregion
 
 
+// Register AppDbContext properly for Dependency Injection
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));  // Make sure connection string exists
 
 //builder.Services.AddDaprClient();
 
@@ -36,7 +41,7 @@ builder.Services.AddDaprWorkflow(options =>
     //Workflow
     options.RegisterWorkflow<OrderWorkflow>();
 
-    // "Success" Activity
+    // Success Activity
     options.RegisterActivity<CreateOrderActivity>();
     options.RegisterActivity<NotifyActivity>();
     options.RegisterActivity<ReserveItemsActivity>();
@@ -45,7 +50,7 @@ builder.Services.AddDaprWorkflow(options =>
     //options.RegisterActivity<CompleteOrderActivity>();
 
     // Compensating Activities
-    //options.RegisterActivity<BackStockItemsActivity>();
+    options.RegisterActivity<DeleteOrderActivity>();
     options.RegisterActivity<UnReserveItemsActivity>();
 });
 

@@ -1,3 +1,6 @@
+using Lexias.Services.PaymentAPI.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -18,6 +21,13 @@ builder.Services.AddControllers()
     .AddDapr(config => config
     .UseGrpcEndpoint($"http://localhost:{daprGrpcPort}"));
 #endregion
+
+
+builder.Services.AddDbContext<AppDbContextPayment>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add Dapr client for interacting with Dapr services
+builder.Services.AddDaprClient();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

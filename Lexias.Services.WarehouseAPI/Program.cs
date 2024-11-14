@@ -1,3 +1,6 @@
+using Lexias.Services.WarehouseAPI.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -19,6 +22,14 @@ builder.Services.AddControllers()
     .AddDapr(config => config
         .UseGrpcEndpoint($"http://localhost:{daprGrpcPort}"));
 #endregion
+
+
+// Add database context for WarehouseAPI
+builder.Services.AddDbContext<AppDbContextWarehouse>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add Dapr client for inter-service communication
+builder.Services.AddDaprClient();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

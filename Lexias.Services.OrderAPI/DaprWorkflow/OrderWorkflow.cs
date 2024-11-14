@@ -21,7 +21,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
         {
 
             // Step 1: Set the order status to Confirmed
-            orderDto.Status = OrderStatus.Confirmed;
+            orderDto.Status = OrderStatus.Received;
             
             //Notify
             await workflowContext.CallActivityAsync(
@@ -80,6 +80,15 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
 
             //Warehouse 
             //// Step 3: Reserve Items (Sending List of OrderItems)
+            orderDto.Status = OrderStatus.ReservingInventory;
+
+            // Notify that inventory reservation is being initiated
+            await workflowContext.CallActivityAsync(
+                nameof(NotifyActivity),
+                new Notification($"Initiating inventory reservation for Order {orderDto.OrderId}.", orderDto));
+
+
+
             var orderItemsInsideOrderDto = orderDto.OrderItemsList;
 
             //Send to activity that sends to WarehouseAPI 
@@ -111,8 +120,14 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
                 {
                     CorrelationId = orderDto.OrderId,
                     State = ResultState.Failed,
-                };
+                }; 
+
+
+                //Log the timeout scenario
+                await workflowContext.CallActivityAsync(nameof(NotifyActivity),
+                    new Notification($"Timeout occurred while waiting for reservation for Order {orderDto.OrderId}.", orderDto));
             }
+
 
 
             //Handle Failed Scnario
@@ -124,6 +139,8 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
 
                 // Compensate: Delete the created order from the database
                 await workflowContext.CallActivityAsync(nameof(DeleteOrderActivity), orderDto.OrderId);
+                await workflowContext.CallActivityAsync(nameof(NotifyActivity),
+                    new Notification($"Order {orderDto.OrderId} deleted after reservation failure.", orderDto));
 
 
                 return new OrderResultDto
@@ -133,9 +150,13 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
                     Message = "Reservation failed"
                 };
             }
+            
 
-
-
+            // If reservation succeeded so Update the status to
+            orderDto.Status = OrderStatus.InventoryReserved;
+            await workflowContext.CallActivityAsync(
+                nameof(NotifyActivity),
+                new Notification($"Inventory reservation successful for Order {orderDto.OrderId}.", orderDto));
 
 
 

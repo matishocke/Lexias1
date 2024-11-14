@@ -24,6 +24,10 @@ namespace Lexias.Services.PaymentAPI.Controllers
             _logger = logger;
         }
 
+
+
+
+
         [Topic(PaymentChannel.Channel, PaymentChannel.Topics.Payment)]
         [HttpPost]
         public async Task<IActionResult> ProcessPayment([FromBody] ProcessPaymentEvent processPaymentEvent)
@@ -44,10 +48,19 @@ namespace Lexias.Services.PaymentAPI.Controllers
                 Status = PaymentStatus.Completed // Assuming payment succeeds
             };
 
-            _context.Orders.Add(payment);
-            await _context.SaveChangesAsync();
 
 
+            try
+            {
+                _context.Orders.Add(payment);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error while saving payment for OrderId: {OrderId}. Error: {ErrorMessage}",
+                    processPaymentEvent.CorrelationId, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error while processing payment");
+            }
 
 
 

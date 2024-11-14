@@ -140,6 +140,8 @@ namespace Lexias.Services.WarehouseAPI.Controllers
 
 
 
+
+
         //Here we should products put back in stock
         [Topic(WarehouseChannel.Channel, WarehouseChannel.Topics.ReservationFailed)]
         [HttpPost]
