@@ -10,16 +10,60 @@
     .Children()
     .Where(x => x.IsVisible());
 }
-<ul>
-	@foreach (var item in selection)
-	{
-		<li>
-			<a href="@item.Url()">@item.Name()</a>
-		</li>
-	}
-</ul>
+<div class="collection-section">
+    <h2 class="collection-title">Available Collections</h2>
 
-<ul>
-    total Nr of Collections = @selection.Count();
-</ul>
+    <ul class="collection-list">
+        @foreach (var item in selection)
+        {
+            <li class="collection-item">
+                <a href="@item.Url()" class="collection-link">@item.Name()</a>
+            </li>
+        }
+    </ul>
+
+    <div class="collection-summary">
+        <p>Total Number of Collections: <strong>@selection.Count()</strong></p>
+    </div>
+</div>
+
+
+
+<style>
+    .collection-section {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        margin: 20px auto;
+    }
+    .collection-title {
+        text-align: center;
+        color: #007bff;
+        margin-bottom: 15px;
+    }
+    .collection-list {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 20px;
+    }
+    .collection-item {
+        margin: 10px 0;
+    }
+    .collection-link {
+        color: #343a40;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .collection-link:hover {
+        color: #007bff;
+        text-decoration: underline;
+    }
+    .collection-summary {
+        text-align: center;
+        font-size: 1.1rem;
+    }
+</style>
+
 

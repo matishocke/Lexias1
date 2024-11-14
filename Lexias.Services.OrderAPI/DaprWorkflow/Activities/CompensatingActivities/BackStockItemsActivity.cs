@@ -5,6 +5,9 @@ using Shared.Enum;
 
 namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities.CompensatingActivities
 {
+    ///when an order is canceled.
+
+
     //public class BackStockItemsActivity : WorkflowActivity<Order, OrderResult>
     //{
     //    private readonly AppDbContext _dbContext;

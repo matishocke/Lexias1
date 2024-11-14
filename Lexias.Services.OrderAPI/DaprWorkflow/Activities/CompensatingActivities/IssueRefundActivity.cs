@@ -5,6 +5,14 @@ using Shared.Enum;
 
 namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities.CompensatingActivities
 {
+
+    /// This activity handles issuing refunds, which is critical if payment has already 
+    ///been processed, but the order is canceled.
+    ///It's needed if you want to manage payment returns in case of order cancellations.
+
+
+
+
     //public class IssueRefundActivity : WorkflowActivity<Order, OrderResult>
     //{
     //    private readonly AppDbContext _dbContext;

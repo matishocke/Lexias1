@@ -12,6 +12,7 @@
 	var isLoggedIn = Context.User?.Identity?.IsAuthenticated ?? false;
 }
 
+
 @if (isLoggedIn)
 {
     var user = Context.User.Identity;
@@ -20,22 +21,57 @@
 
     if (member != null)
     {
-        <h2>@("Welcome, " + member.GetValue("firstName"))</h2>
-        <p><strong>Full Name:</strong> @(member.GetValue("firstName") + " " + member.GetValue("lastName"))</p>
-        <p><strong>Address:</strong> @member.GetValue("address"), @member.GetValue("city") @member.GetValue("zip")</p>
-        <p><strong>Mobile:</strong> @member.GetValue("mobile")</p>
+        <div class="member-profile">
+            <h2 class="welcome-message">Welcome, @member.GetValue("firstName")</h2>
+            <div class="member-details">
+                <p><strong>Full Name:</strong> @member.GetValue("firstName") @member.GetValue("lastName")</p>
+                <p><strong>Address:</strong> @member.GetValue("address"), @member.GetValue("city") @member.GetValue("zip")</p>
+                <p><strong>Mobile:</strong> @member.GetValue("mobile")</p>
+            </div>
 
-        @if (member.GetValue<string>("photo") is string memberImage && !string.IsNullOrEmpty(memberImage))
-        {
-            <img src="@memberImage" alt="Profile Photo" class="img-fluid rounded shadow-sm" style="max-width: 150px;" />
-        }
+            @if (member.GetValue<string>("photo") is string memberImage && !string.IsNullOrEmpty(memberImage))
+            {
+                <div class="member-photo">
+                    <img src="@memberImage" alt="Profile Photo" class="img-fluid rounded shadow-sm" style="max-width: 500px;" />
+                </div>
+            }
+        </div>
     }
     else
     {
-        <p>Could not retrieve your profile information.</p>
+        <div class="error-message">
+            <p>Could not retrieve your profile information.</p>
+        </div>
     }
 }
 else
 {
-    <p>Please log in to view your profile.</p>
+    <div class="login-message">
+        <p>Please log in to view your profile.</p>
+    </div>
 }
+
+<style>
+    .member-profile {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 20px auto;
+    }
+    .welcome-message {
+        color: black;
+    }
+    .member-details p {
+        margin: 10px 0;
+    }
+    .member-photo {
+        margin-top: 15px;
+    }
+    .error-message, .login-message {
+        text-align: center;
+        margin-top: 20px;
+        color: #dc3545;
+    }
+</style>

@@ -5,6 +5,12 @@ using Shared.Enum;
 
 namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities.CompensatingActivities
 {
+
+
+    /// For example, if a customer decides to cancel an order before it has shipped.
+
+
+
     //public class CancelOrderActivity : WorkflowActivity<Order, OrderResult>
     //{
     //    private readonly AppDbContext _dbContext;

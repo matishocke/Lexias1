@@ -3,6 +3,9 @@
 @{
 	Layout = null;
 
+    var isLoggedIn = Context.User?.Identity?.IsAuthenticated ?? false;
+
+
     // Count all children directly under the root node
     var totalProjects = Model.Root().Children().Count();  
 
@@ -75,16 +78,39 @@
         
         <div class="collapse navbar-collapse" id="navbar-nav-header">
             <ul class="navbar-nav">
-                <!-- Children in NavBar -->
-                @foreach (var child in Model.Root().Children())
+
+                @if (isLoggedIn)
                 {
-                    if (child.Name != "Collections" && child.Name != "WhitepaperPage" && child.Name != "Coupon" && child.Value<bool>("umbracoNaviHideIt") == false)
+                    <!-- Children in NavBar -->
+                    @foreach (var child in Model.Root().Children())
                     {
-                        <li class="nav-item">
-                             <a class="nav-link" href="@child.Url()">@child.Name</a>
-                        </li>
+                        if (child.Name != "Collections" && child.Name != "WhitepaperPage" && child.Name != "Coupon" && child.Value<bool>("umbracoNaviHideIt") == false && child.Name != "Register")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="@child.Url()">@child.Name</a>
+                            </li>
+                        }
+                    }
+                    
+                }
+                else
+                {
+                        <!-- Children in NavBar -->
+                    @foreach (var child in Model.Root().Children())
+                    {
+                        if (child.Name != "Collections" && child.Name != "WhitepaperPage" && child.Name != "Coupon" && child.Value<bool>("umbracoNaviHideIt") == false)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="@child.Url()">@child.Name</a>
+                            </li>
+                        }
                     }
                 }
+                
+
+
+                
+
 
                 <!-- Dropdown -->
                 <li class="nav-item dropdown">
