@@ -1,5 +1,5 @@
 ﻿using Dapr.Workflow;
-using Lexias.Services.OrderAPI.Data;
+using Lexias.Services.OrderAPI.Data.Repository.IRepository;
 using Lexias.Services.OrderAPI.Models;
 using Shared.Dtos.OrderDto;
 using Shared.Enum;
@@ -8,17 +8,17 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
 {
     public class CreateOrderActivity : WorkflowActivity<OrderDto, OrderResultDto>
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IOrderRepository _db;
 
-        public CreateOrderActivity(AppDbContext dbContext)
+        public CreateOrderActivity(IOrderRepository orderRepository)
         {
-            _dbContext = dbContext;
+            _db = orderRepository;
         }
 
 
 
-
-        public override async Task<OrderResultDto> RunAsync(WorkflowActivityContext context, OrderDto orderDto)
+        
+        public override async Task<OrderResultDto> RunAsync(WorkflowActivityContext context, OrderDto orderDto)  //orderdto data from controller But the ID the id never get created by user
         {
             try
             {
@@ -33,38 +33,36 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
                 // Convert OrderDto to Order inside the activity
                 var order = new Order
                 {
-                    OrderId = Guid.NewGuid().ToString(),
+                    OrderId = orderDto.OrderId,  
                     OrderItemsList = orderDto.OrderItemsList.Select(item => new OrderItem
                     {
+                        OrderItemId = item.OrderItemId,  // Use the OrderItemId from OrderDto we created in workflow
+                        OrderId = orderDto.OrderId,      // Set the OrderId on each OrderItem
                         ProductId = item.ProductId,
                         ProductName = item.ProductName,
                         Quantity = item.Quantity,
                         Price = item.Price,
-                        ItemType = item.ItemType
                     }).ToList(),
                     OrderDate = DateTime.UtcNow,
-                    Customer = new Customer
-                    {
-                        CustomerId = orderDto.CustomerDto.CustomerId,
-                        Name = orderDto.CustomerDto.Name,
-                        Email = orderDto.CustomerDto.Email,
-                        Address = orderDto.CustomerDto.Address,
-                        PhoneNumber = orderDto.CustomerDto.PhoneNumber
-                    },
+                    CustomerId = orderDto.CustomerId,
                     TotalAmount = totalAmount,
                     OrderStatus = orderDto.Status
                 };
 
-                // Add order to database
-                _dbContext.Orders.Add(order);
-                await _dbContext.SaveChangesAsync();
+
+
+
+                // Add order to database using repository
+                await _db.AddOrderAsync(order);
+
+
 
                 // Return success result
                 return new OrderResultDto
                 {
-                    OrderId = order.OrderId,
+                    OrderId = orderDto.OrderId,
                     OrderStatus = OrderStatus.Pending,
-                    Message = "Order created successfully."
+                    Message = "Order created in database successfully."
                 };
             }
             catch (Exception ex)
@@ -74,7 +72,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
                 {
                     OrderId = orderDto.OrderId,
                     OrderStatus = OrderStatus.Cancelled,
-                    Message = $"Failed to create order: {ex.Message}"
+                    Message = $"Failed to create order in database: {ex.Message}"
                 };
             }
         }

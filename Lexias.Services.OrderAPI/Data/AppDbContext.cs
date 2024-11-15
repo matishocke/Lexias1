@@ -17,27 +17,20 @@ namespace Lexias.Services.OrderAPI.Data
             base.OnModelCreating(modelBuilder);
 
 
-           
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.OrderItemsList)
+                .WithOne()
+                .HasForeignKey(oi => oi.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
 
 
+            // Seed Orders
             modelBuilder.Entity<Order>().HasData(
                 new Order
                 {
                     OrderId = "order1111",
                     OrderDate = DateTime.UtcNow.AddDays(-3),
-                    OrderItemsList = new List<OrderItem>
-                    {
-                        new OrderItem { ProductId = "product1", ProductName = "T-Shirt", Quantity = 2, Price = 20.00M },
-                        new OrderItem { ProductId = "product2", ProductName = "Jeans", Quantity = 1, Price = 40.00M }
-                    },
-                    Customer = new Customer
-                    {
-                        CustomerId = "customer1",
-                        Name = "John Doe",
-                        Email = "john.doe@example.com",
-                        Address = "123 Street, City, Country",
-                        PhoneNumber = "123456789"
-                    },
+                    CustomerId = "customer1",
                     TotalAmount = 80.00M,
                     OrderStatus = OrderStatus.Confirmed
                 },
@@ -45,18 +38,7 @@ namespace Lexias.Services.OrderAPI.Data
                 {
                     OrderId = "order2222",
                     OrderDate = DateTime.UtcNow.AddDays(-1),
-                    OrderItemsList = new List<OrderItem>
-                    {
-                        new OrderItem { ProductId = "product3", ProductName = "Jacket", Quantity = 1, Price = 60.00M }
-                    },
-                    Customer = new Customer
-                    {
-                        CustomerId = "customer2",
-                        Name = "Jane Smith",
-                        Email = "jane.smith@example.com",
-                        Address = "456 Avenue, City, Country",
-                        PhoneNumber = "987654321"
-                    },
+                    CustomerId = "customer2",     
                     TotalAmount = 60.00M,
                     OrderStatus = OrderStatus.Pending
                 },
@@ -64,21 +46,58 @@ namespace Lexias.Services.OrderAPI.Data
                 {
                     OrderId = "order3333",
                     OrderDate = DateTime.UtcNow.AddDays(-2),
-                    OrderItemsList = new List<OrderItem>
-                    {
-                        new OrderItem { ProductId = "product4", ProductName = "Sneakers", Quantity = 1, Price = 50.00M },
-                        new OrderItem { ProductId = "product5", ProductName = "Hat", Quantity = 3, Price = 10.00M }
-                    },
-                    Customer = new Customer
-                    {
-                        CustomerId = "customer3",
-                        Name = "Michael Johnson",
-                        Email = "michael.johnson@example.com",
-                        Address = "789 Road, City, Country",
-                        PhoneNumber = "192837465"
-                    },
+                    CustomerId = "customer3",
                     TotalAmount = 80.00M,
                     OrderStatus = OrderStatus.Shipped
+                }
+            );
+
+            // Seed OrderItems
+            modelBuilder.Entity<OrderItem>().HasData(
+                new OrderItem
+                {
+                    OrderItemId = "orderitem1",
+                    OrderId = "order1111",
+                    ProductId = "product1",
+                    ProductName = "T-Shirt",
+                    Quantity = 2,
+                    Price = 20.00M
+                },
+                new OrderItem
+                {
+                    OrderItemId = "orderitem2",
+                    OrderId = "order1111",
+                    ProductId = "product2",
+                    ProductName = "Jeans",
+                    Quantity = 1,
+                    Price = 40.00M
+                },
+                new OrderItem
+                {
+                    OrderItemId = "orderitem3",
+                    OrderId = "order2222",
+                    ProductId = "product3",
+                    ProductName = "Jacket",
+                    Quantity = 1,
+                    Price = 60.00M
+                },
+                new OrderItem
+                {
+                    OrderItemId = "orderitem4",
+                    OrderId = "order3333",
+                    ProductId = "product4",
+                    ProductName = "Sneakers",
+                    Quantity = 1,
+                    Price = 50.00M
+                },
+                new OrderItem
+                {
+                    OrderItemId = "orderitem5",
+                    OrderId = "order3333",
+                    ProductId = "product5",
+                    ProductName = "Hat",
+                    Quantity = 3,
+                    Price = 10.00M
                 }
             );
 

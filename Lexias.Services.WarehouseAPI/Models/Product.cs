@@ -1,4 +1,6 @@
-﻿namespace Lexias.Services.WarehouseAPI.Models
+﻿using Shared.Enum;
+
+namespace Lexias.Services.WarehouseAPI.Models
 {
     public class Product
     {
@@ -11,6 +13,8 @@
         public List<string> Sizes { get; set; } // Example: ["S", "M", "L", "XL"]
         public string Color { get; set; }
         public List<string> Images { get; set; }
+        public ItemType ItemType { get; set; }
+
     }
 
 }

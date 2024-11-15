@@ -1,5 +1,6 @@
 ﻿using Lexias.Services.WarehouseAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using Shared.Enum;
 
 namespace Lexias.Services.WarehouseAPI.Data
 {
@@ -8,7 +9,7 @@ namespace Lexias.Services.WarehouseAPI.Data
         public AppDbContextWarehouse(DbContextOptions<AppDbContextWarehouse> options) : base(options)
         {
         }
-        public DbSet<Product> Orders { get; set; }
+        public DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,7 +28,8 @@ namespace Lexias.Services.WarehouseAPI.Data
                     Category = "Men",
                     Sizes = new List<string> { "S", "M", "L", "XL" },
                     Color = "Red",
-                    Images = new List<string> { "tshirt1.jpg", "tshirt2.jpg" }
+                    Images = new List<string> { "tshirt1.jpg", "tshirt2.jpg" },
+                    ItemType = ItemType.Tops
                 },
                 new Product
                 {
@@ -39,7 +41,8 @@ namespace Lexias.Services.WarehouseAPI.Data
                     Category = "Men",
                     Sizes = new List<string> { "M", "L", "XL" },
                     Color = "Blue",
-                    Images = new List<string> { "jeans1.jpg", "jeans2.jpg" }
+                    Images = new List<string> { "jeans1.jpg", "jeans2.jpg" },
+                    ItemType = ItemType.Bottoms
                 },
                 new Product
                 {
@@ -51,7 +54,8 @@ namespace Lexias.Services.WarehouseAPI.Data
                     Category = "Women",
                     Sizes = new List<string> { "S", "M", "L" },
                     Color = "Black",
-                    Images = new List<string> { "jacket1.jpg", "jacket2.jpg" }
+                    Images = new List<string> { "jacket1.jpg", "jacket2.jpg" },
+                    ItemType = ItemType.Outerwear
                 }
             );
 

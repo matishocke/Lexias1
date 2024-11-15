@@ -1,5 +1,6 @@
 ﻿using Dapr.Workflow;
-using Lexias.Services.OrderAPI.Data;
+using Lexias.Services.OrderAPI.Data.Repository;
+using Lexias.Services.OrderAPI.Data.Repository.IRepository;
 using Lexias.Services.OrderAPI.Models;
 using Shared.Enum;
 
@@ -8,12 +9,13 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities.CompensatingActivitie
     //string is orderID as input
     public class DeleteOrderActivity : WorkflowActivity<string, OrderResult>
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IOrderRepository _db;
 
-        public DeleteOrderActivity(AppDbContext dbContext)
+        public DeleteOrderActivity(IOrderRepository orderRepository)
         {
-            _dbContext = dbContext;
+            _db = orderRepository;
         }
+
 
 
 
@@ -23,22 +25,8 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities.CompensatingActivitie
         {
             try
             {
-                // Find the order by OrderId
-                var order = await _dbContext.Orders.FindAsync(orderId);
-
-                if (order == null)
-                {
-                    return new OrderResult
-                    {
-                        OrderId = orderId,
-                        OrderStatus = OrderStatus.Cancelled,
-                        Message = "Order not found, could not delete."
-                    };
-                }
-
-                // Remove the order from the database
-                _dbContext.Orders.Remove(order);
-                await _dbContext.SaveChangesAsync();
+                // Delete order from the database using repository
+                await _db.DeleteOrderAsync(orderId);
 
                 // Return success result
                 return new OrderResult

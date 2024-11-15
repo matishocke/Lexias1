@@ -1,4 +1,6 @@
 using Lexias.Services.PaymentAPI.Data;
+using Lexias.Services.PaymentAPI.Data.Repository.IRepository;
+using Lexias.Services.PaymentAPI.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +23,10 @@ builder.Services.AddControllers()
     .AddDapr(config => config
     .UseGrpcEndpoint($"http://localhost:{daprGrpcPort}"));
 #endregion
+
+
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+
 
 
 builder.Services.AddDbContext<AppDbContextPayment>(options =>

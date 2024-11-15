@@ -1,6 +1,7 @@
 ﻿using Dapr;
 using Dapr.Client;
-using Lexias.Services.WarehouseAPI.Data;
+using Lexias.Services.WarehouseAPI.Data.Repository;
+using Lexias.Services.WarehouseAPI.Data.Repository.IRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Enum;
@@ -15,14 +16,19 @@ namespace Lexias.Services.WarehouseAPI.Controllers
     {
         private readonly DaprClient _daprClient;
         private readonly ILogger<ItemsController> _logger;
-        private readonly AppDbContextWarehouse _context;
+        private readonly IProductRepository _db;
 
-        public ItemsController(DaprClient daprClient, ILogger<ItemsController> logger, AppDbContextWarehouse context)
+
+        public ItemsController(
+            DaprClient daprClient,
+            ILogger<ItemsController> logger,
+            IProductRepository productRepository)
         {
             _daprClient = daprClient;
             _logger = logger;
-            _context = context;
+            _db = productRepository;
         }
+
 
 
 
@@ -41,10 +47,11 @@ namespace Lexias.Services.WarehouseAPI.Controllers
             bool itemsAvailable = true;
 
 
+            //first we check if we have the product and enough of each for the order
             foreach (var item in reserveItemsEvent.OrderItemsList)
             {
                 //Check this Product exist
-                var product = _context.Orders.FirstOrDefault(p => p.ProductId == item.ProductId);
+                var product = await _db.GetProductByIdAsync(item.ProductId);
 
                 //Check are there enough of these Product
                 if (product == null || product.StockQuantity < item.Quantity)
@@ -58,7 +65,7 @@ namespace Lexias.Services.WarehouseAPI.Controllers
             //Failed
             //- If item is not available
             //NOTE: we HAVE TO provoke ItemsReservedResultEvent back either succed nor failed because the workflow is WAITING
-            if (!itemsAvailable)
+            if (itemsAvailable == false)
             {
                 var itemReservationFailedEvent = new ItemsReservationFailedEvent
                 {
@@ -75,7 +82,7 @@ namespace Lexias.Services.WarehouseAPI.Controllers
                     itemReservationFailedEvent);
 
 
-                //we going to make a publish itemsReservedResultEvent as a failed scenario with a State = ResultState.Failed,
+                //we also going to make a publish itemsReservedResultEvent as a failed scenario with a State = ResultState.Failed,
                 // Publish ItemsReservedResultEvent to the workflow with a failed state
                 var itemsReservedResultEvent2failed = new ItemsReservedResultEvent
                 {
@@ -90,7 +97,11 @@ namespace Lexias.Services.WarehouseAPI.Controllers
 
 
 
-                _logger.LogInformation($"Reservation failed for Order: {itemReservationFailedEvent.CorrelationId}, Reason: {itemReservationFailedEvent.Reason}");
+                _logger.LogInformation($"Reservation failed for Order: " +
+                    $"{itemReservationFailedEvent.CorrelationId}, " +
+                    $"Reason: {itemReservationFailedEvent.Reason}");
+
+
                 return BadRequest(itemReservationFailedEvent);
             }
 
@@ -99,17 +110,16 @@ namespace Lexias.Services.WarehouseAPI.Controllers
             // Update inventory for each item
             foreach (var item in reserveItemsEvent.OrderItemsList)
             {
-                //if success so each product sell some of its Quantity
-                var product = _context.Orders.FirstOrDefault(p => p.ProductId == item.ProductId);
+                var product = await _db.GetProductByIdAsync(item.ProductId);
                 if (product != null)
                 {
-                    //ensures we never end up with negative stock (Math.Max)
+                    // Ensure we never end up with negative stock
                     product.StockQuantity = Math.Max(0, product.StockQuantity - item.Quantity);
-                    _context.Orders.Update(product);
+                    await _db.UpdateProductAsync(product);
                 }
             }
 
-            await _context.SaveChangesAsync();
+
 
 
 
@@ -148,22 +158,21 @@ namespace Lexias.Services.WarehouseAPI.Controllers
         public async Task<IActionResult> UnreserveItems([FromBody] ItemsReservationFailedEvent itemsReservationFailedEvent)
         {
             _logger.LogInformation($"Unreserve request received: {itemsReservationFailedEvent.CorrelationId}");
-            
+
             //itemsReservationFailedEvent.State = ResultState.Failed;  this we already recieved by the message from the Topic
-            
+
             // Logic to unreserve items in the inventory
             foreach (var item in itemsReservationFailedEvent.OrderItems)
             {
-                var product = _context.Orders.FirstOrDefault(p => p.ProductId == item.ProductId);
+                var product = await _db.GetProductByIdAsync(item.ProductId);
                 if (product != null)
                 {
-                    product.StockQuantity = product.StockQuantity + item.Quantity;
-                    _context.Orders.Update(product);
+                    product.StockQuantity += item.Quantity;
+                    await _db.UpdateProductAsync(product);
                 }
-                _logger.LogInformation($"Unreserving item: {item.ItemType}, Quantity: {item.Quantity}");
+                _logger.LogInformation($"Unreserving item: {item.ProductName}, Quantity: {item.Quantity}");
             }
 
-            await _context.SaveChangesAsync();
             return Ok();
         }
     }

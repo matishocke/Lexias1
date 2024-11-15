@@ -1,4 +1,6 @@
 using Lexias.Services.WarehouseAPI.Data;
+using Lexias.Services.WarehouseAPI.Data.Repository.IRepository;
+using Lexias.Services.WarehouseAPI.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +24,9 @@ builder.Services.AddControllers()
     .AddDapr(config => config
         .UseGrpcEndpoint($"http://localhost:{daprGrpcPort}"));
 #endregion
+
+
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 
 // Add database context for WarehouseAPI

@@ -5,6 +5,8 @@ using Lexias.Services.OrderAPI.DaprWorkflow.Activities.CompensatingActivities;
 using Lexias.Services.OrderAPI.DaprWorkflow.Activities;
 using Microsoft.EntityFrameworkCore;
 using Lexias.Services.OrderAPI.Data;
+using Lexias.Services.OrderAPI.Data.Repository.IRepository;
+using Lexias.Services.OrderAPI.Data.Repository;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +34,11 @@ builder.Services.AddControllers()
 // Register AppDbContext properly for Dependency Injection
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));  // Make sure connection string exists
+
+
+// Register Repositories for Dependency Injection
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
 
 //builder.Services.AddDaprClient();
 

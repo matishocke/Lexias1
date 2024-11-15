@@ -20,14 +20,14 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
 
 
         // itemToReserve = List<OrderItem>
-        public override async Task<object?> RunAsync(WorkflowActivityContext context, List<OrderItemDto> itemToReserve)
+        public override async Task<object?> RunAsync(WorkflowActivityContext context, List<OrderItemDto> itemsToReserve)
         {
             _logger.LogInformation($"Attempting to reserve items for Order: {context.InstanceId}");
 
             var reserveItemEvent = new ReserveItemsEvent 
             { 
                 CorrelationId = context.InstanceId, 
-                OrderItemsList = itemToReserve  //sender hele List<OrderItemS(quantity productid)>
+                OrderItemsList = itemsToReserve  //sender hele List<OrderItemS(quantity productid)>
             };
 
 

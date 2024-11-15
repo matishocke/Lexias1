@@ -1,6 +1,7 @@
 ﻿using Dapr;
 using Dapr.Client;
-using Lexias.Services.PaymentAPI.Data;
+using Lexias.Services.PaymentAPI.Data.Repository;
+using Lexias.Services.PaymentAPI.Data.Repository.IRepository;
 using Lexias.Services.PaymentAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,14 +15,18 @@ namespace Lexias.Services.PaymentAPI.Controllers
     [ApiController]
     public class PaymentController : ControllerBase
     {
-        private readonly AppDbContextPayment _context;
         private readonly DaprClient _daprClient;
         private readonly ILogger<PaymentController> _logger;
+        private readonly IPaymentRepository _db;
 
-        public PaymentController(DaprClient daprClient, ILogger<PaymentController> logger)
+        public PaymentController(
+            DaprClient daprClient,
+            ILogger<PaymentController> logger, 
+            IPaymentRepository paymentRepository)
         {
             _daprClient = daprClient;
             _logger = logger;
+            _db = paymentRepository;
         }
 
 
@@ -52,8 +57,7 @@ namespace Lexias.Services.PaymentAPI.Controllers
 
             try
             {
-                _context.Orders.Add(payment);
-                await _context.SaveChangesAsync();
+                await _db.AddPaymentAsync(payment);
             }
             catch (Exception ex)
             {
