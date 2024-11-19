@@ -17,8 +17,12 @@ namespace Lexias.Services.PaymentAPI.Data
             base.OnModelCreating(modelBuilder);
 
 
+            // Configure precision for Amount to avoid issues with decimals
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.Amount)
+                .HasPrecision(24, 4);
 
-
+            // Seed Payments
             modelBuilder.Entity<Payment>().HasData(
                 new Payment
                 {

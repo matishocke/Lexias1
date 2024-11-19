@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Lexias.Services.OrderAPI.Data;
 using Lexias.Services.OrderAPI.Data.Repository.IRepository;
 using Lexias.Services.OrderAPI.Data.Repository;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Options;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,9 +33,28 @@ builder.Services.AddControllers()
 #endregion
 
 
+
+
 // Register AppDbContext properly for Dependency Injection
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));  // Make sure connection string exists
+{
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlServerOptions => sqlServerOptions.MigrationsAssembly("Lexias.Services.OrderAPI")
+    );
+
+    options.ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.NavigationBaseIncludeIgnored));
+}); 
+
+
+
+
+//builder.Services.AddDbContext<BackendDbContext>(
+//    options =>
+//        options.UseSqlServer(builder.Configuration.GetConnectionString("BackendDbConnection"), 
+//        x => x.MigrationsAssembly("SqlServerContext.Migrations")));
+
+
 
 
 // Register Repositories for Dependency Injection
@@ -72,7 +93,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(); 
 }
 
 

@@ -14,10 +14,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
         {
             _db = orderRepository;
         }
-
-
-
-        
+     
         public override async Task<OrderResultDto> RunAsync(WorkflowActivityContext context, OrderDto orderDto)  //orderdto data from controller But the ID the id never get created by user
         {
             try
@@ -28,7 +25,6 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
                 {
                     totalAmount = totalAmount + item.Quantity * item.Price;
                 }
-
 
                 // Convert OrderDto to Order inside the activity
                 var order = new Order
@@ -48,9 +44,6 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
                     TotalAmount = totalAmount,
                     OrderStatus = orderDto.Status
                 };
-
-
-
 
                 // Add order to database using repository
                 await _db.AddOrderAsync(order);

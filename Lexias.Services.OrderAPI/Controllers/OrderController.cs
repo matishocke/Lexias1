@@ -10,7 +10,7 @@ using Shared.Enum;
 
 namespace Lexias.Services.OrderAPI.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]/[action]")] // denne skal skiftes 
     [ApiController]
     public class OrderController : ControllerBase
     {
@@ -21,7 +21,7 @@ namespace Lexias.Services.OrderAPI.Controllers
         }
 
 
-
+        //Create
         //If Create Order workflow starts
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] OrderDto orderDto)

@@ -18,18 +18,17 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
         }
 
 
-
-
         public override async Task<object?> RunAsync(WorkflowActivityContext context, PaymentDto paymentDto)
         {
             // Log that the payment is being processed
-            _logger.LogInformation($"Processing payment for OrderId: {context.InstanceId}, Amount: {paymentDto.Amount}");
+            _logger.LogInformation($"Processing payment for OrderId: {paymentDto.OrderId}, Amount: {paymentDto.Amount}");
 
             // Create payment request event
             var processPaymentEvent = new ProcessPaymentEvent
             {
                 CorrelationId = context.InstanceId,
-                Amount = paymentDto.Amount
+                Amount = paymentDto.Amount,
+                OrderId = paymentDto.OrderId
             };
 
             // Publish the payment request event

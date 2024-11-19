@@ -10,15 +10,10 @@
     var totalProjects = Model.Root().Children().Count();  
 
     IPublishedContent root = Model.Root();
-    var colorGradient1 = root.Value("colorSettingsGradientStart");
-    var colorGradient2 = root.Value("colorSettingsGradientEnd");
-    var colorAccent1 = root.Value("colorSettingsAccent1");
-    var colorAccent2 = root.Value("colorSettingsAccent2");
-    if (colorGradient1 == "" || colorGradient1 == null) { colorGradient1 = "#1b264f"; };
-    if (colorGradient2 == "" || colorGradient2 == null) { colorGradient2 = "#3e4c9f"; };
-    if (colorAccent1 == "" || colorAccent1 == null) { colorAccent1 = "#e9b1aa"; };
-    if (colorAccent2 == "" || colorAccent2 == null) { colorAccent2 = "#f5c0ba"; };
-
+    var colorGradient1 = root.Value("colorSettingsGradientStart") ?? "#1b264f";
+    var colorGradient2 = root.Value("colorSettingsGradientEnd") ?? "#3e4c9f";
+    var colorAccent1 = root.Value("colorSettingsAccent1") ?? "#e9b1aa";
+    var colorAccent2 = root.Value("colorSettingsAccent2") ?? "#f5c0ba";
 }
 
 
@@ -56,6 +51,7 @@
     @* //toastr// added here *@
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css" />  
 
+
 </head>
 
 
@@ -76,8 +72,10 @@
             <span class="lnr lnr-menu"></span>
         </button>
         
+
+
         <div class="collapse navbar-collapse" id="navbar-nav-header">
-            <ul class="navbar-nav">
+            <ul class="navbar-nav me-auto">
 
                 @if (isLoggedIn)
                 {
@@ -107,19 +105,21 @@
                     }
                 }
                 
+            </ul>
 
 
                 
 
 
+            <!-- Right-Aligned Menus -->
+            <ul class="navbar-nav ms-auto">
                 <!-- Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-grid-fill"></i>
                     </a>
-
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <!-- specific items in dropdown -->
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <!-- Specific items in dropdown -->
                         @foreach (var child in Model.Root().Children())
                         {
                             if (child.Name == "Collections" || child.Name == "Coupon")
@@ -127,26 +127,26 @@
                                 <li><a class="dropdown-item" href="@child.Url()">@child.Name</a></li>
                             }
                         }
-
-                        <!-- line -->
+                        <!-- Line -->
                         <li><hr class="dropdown-divider"></li>
-
-                        <!-- specific items in dropdown -->
+                        <!-- Specific items in dropdown -->
                         @foreach (var child in Model.Root().Children())
                         {
                             if (child.Name == "WhitepaperPage")
                             {
                                 <li><a class="dropdown-item" href="@child.Url()">@child.Name</a></li>
                             }
-                        }  
+                        }
                     </ul>
                 </li>
 
                 <!-- Existing Language Dropdown -->
                 <li class="nav-item lang-dropdown clickable" onclick="langDropdown()">
                     <span class="nav-link">EN</span>
-                    <div class="lang-dropdown-content" style="visibility:hidden" id="langDropdown">
-                        We will add more here later
+                    <div class="lang-dropdown-content dropdown-menu-end" style="visibility:hidden" id="langDropdown">
+                        <!-- Add your language options here -->
+                        <a href="#" class="dropdown-item">English</a>
+                        <a href="#" class="dropdown-item">Danish</a>
                     </div>
                 </li>
             </ul>
@@ -220,19 +220,10 @@
 
 
 
+
     
     <!-- inline CSS so we can style according to the colors picked by users -->
     <style>
-
-
-        .jumbotron {
-            color: #fff;
-        }
-
-        .jumbotron:before {
-            background: none;
-        }
-
 
         .company-name {
              font-size: 5rem; /* Adjust the size as desired */
@@ -249,78 +240,54 @@
             transition: background-color 0.3s ease; /* Glidende overgang, når du scroller */
         }
 
-
-        
-
-        
-        body {
-            padding-top: 60px; /* Tilføj polstring, så indholdet ikke starter under navbaren */
+        .navbar-nav.ms-auto .dropdown-menu {
+            right: 0;
+            left: auto;
+        }
+        .navbar-nav.me-auto .dropdown-menu {
+            right: auto;
+            left: 0;
         }
 
         
-        .content-wrapper {
-            padding-top: 70px; /* Adjust based on navbar height bring the renderbody below navbar*/
-        }  
+        
+
+        
+       
+
+        
 
 
-        .navbar-nav .nav-link {
-                color: white; /* Set the text color to white */
-        }
 
-        .navbar-nav .nav-link:hover {
-                color: @colorAccent1; /* Optional: Change hover color to accent color */
-        }
-
-
-        .rectangle-1, .rectangle-2 {
-            background: @colorAccent1;
-            background: -webkit-linear-gradient(to right, @colorAccent1, @colorAccent1);
-            background: linear-gradient(to right, @colorAccent1, @colorAccent2);
-        }
+        
 
         .int-link:hover, .clickable:hover, .footer-icon:hover, .uppercase a:hover {
             color: @colorGradient1;
         }
 
-        .owl-dot span {
-            background-color: @colorGradient2;
-        }
 
         .featured {
             border: 2px dashed @colorGradient2;
         }
 
-        .feature-item a:hover {
-            color: @colorAccent1;
-        }
+      
 
 
         .uppercase a, .testi-icon, .clickable, .footer-icon, .blog-share, .blog-tag {
             color: @colorGradient2;
         }
 
-        .blog-title p {
-            color: @colorGradient2;
-            outline: 1px solid @colorGradient2;
-        }
+        
 
-        .blog-share:hover, .blog-tag span:hover {
-            color: @colorGradient1;
-        }
+       
 
-        .form-control:focus {
-            border-color: @colorAccent1;
-        }
+        
 
         .side-nav a {
             color: @colorGradient2;
         }
 
-        .nav-current {
-            color: @colorGradient1 !important;
-            padding: 0 2px;
-            outline: 1px solid @colorGradient1;
-        }
+        
 
 
 
@@ -334,9 +301,7 @@
                 border-color: @colorGradient1;
             }
 
-        .owl-dot.active > span {
-            box-shadow: 0 0 0 2px @colorGradient2;
-        }
+        
 
         .overlay:before {
             background: @colorGradient1;
@@ -355,8 +320,8 @@
 
         /* Make content-wrapper take up the remaining space */
         .content-wrapper {
-            min-height: calc(100vh - 200px); /* Adjust the '200px' based on your navbar and footer height */
-            padding-bottom: 40px; /* Same as footer height */
+            padding-top: 70px;
+            min-height: calc(100vh - 40px); /* Adjust the '200px' based on your navbar and footer height */
         }
 
         /* Footer styles */
@@ -367,6 +332,9 @@
             height: 40px; /* Adjust to your footer height */
             background-color: white; /* Adjust based on color needs */
         }
+
+
+       
     </style>
 
 </body>

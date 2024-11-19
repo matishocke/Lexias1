@@ -37,9 +37,10 @@ namespace Lexias.Services.PaymentAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> ProcessPayment([FromBody] ProcessPaymentEvent processPaymentEvent)
         {
-            _logger.LogInformation("Processing payment: {CorrelationId}, Amount: {Amount}",
+            _logger.LogInformation("Processing payment: {CorrelationId}, Amount: {Amount}, OrderId: {OrderId}",
                 processPaymentEvent.CorrelationId,
-                processPaymentEvent.Amount);
+                processPaymentEvent.Amount,
+                processPaymentEvent.OrderId);
 
 
 
@@ -47,7 +48,7 @@ namespace Lexias.Services.PaymentAPI.Controllers
             var payment = new Payment
             {
                 PaymentId = Guid.NewGuid().ToString(),
-                OrderId = processPaymentEvent.CorrelationId,
+                OrderId = processPaymentEvent.OrderId,
                 Amount = processPaymentEvent.Amount,
                 PaymentDate = DateTime.UtcNow,
                 Status = PaymentStatus.Completed // Assuming payment succeeds

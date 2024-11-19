@@ -15,6 +15,11 @@ namespace Lexias.Services.WarehouseAPI.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Set precision for Price to avoid issues with decimals
+            modelBuilder.Entity<Product>()
+                .Property(p => p.Price)
+                .HasPrecision(24, 4); // 18 digits in total, 2 after the decimal point
+
 
 
             modelBuilder.Entity<Product>().HasData(
@@ -26,9 +31,7 @@ namespace Lexias.Services.WarehouseAPI.Data
                     Price = 20.00M,
                     StockQuantity = 500,
                     Category = "Men",
-                    Sizes = new List<string> { "S", "M", "L", "XL" },
                     Color = "Red",
-                    Images = new List<string> { "tshirt1.jpg", "tshirt2.jpg" },
                     ItemType = ItemType.Tops
                 },
                 new Product
@@ -39,9 +42,7 @@ namespace Lexias.Services.WarehouseAPI.Data
                     Price = 40.00M,
                     StockQuantity = 300,
                     Category = "Men",
-                    Sizes = new List<string> { "M", "L", "XL" },
                     Color = "Blue",
-                    Images = new List<string> { "jeans1.jpg", "jeans2.jpg" },
                     ItemType = ItemType.Bottoms
                 },
                 new Product
@@ -52,13 +53,10 @@ namespace Lexias.Services.WarehouseAPI.Data
                     Price = 60.00M,
                     StockQuantity = 600,
                     Category = "Women",
-                    Sizes = new List<string> { "S", "M", "L" },
                     Color = "Black",
-                    Images = new List<string> { "jacket1.jpg", "jacket2.jpg" },
                     ItemType = ItemType.Outerwear
                 }
             );
-
         }
     }
 }

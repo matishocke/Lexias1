@@ -42,7 +42,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
                 new Notification($"Order {orderDto.OrderId} received from {orderDto.CustomerId}.",
                 orderDto));
 
-            
+
 
             // Step 2: Create Order in Database
             var createOrderResult = await workflowContext.CallActivityAsync<OrderResultDto>(
@@ -189,7 +189,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
             //Payment
             // Step 5: Process Payment
             orderDto.Status = OrderStatus.CheckingPayment;
-            var paymentDto = new PaymentDto { Amount = orderDto.TotalAmount };
+            var paymentDto = new PaymentDto { Amount = orderDto.TotalAmount, OrderId = orderDto.OrderId};
             await workflowContext.CallActivityAsync(nameof(ProcessPaymentActivity), paymentDto);
             
             

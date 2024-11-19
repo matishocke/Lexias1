@@ -32,6 +32,8 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddDbContext<AppDbContextPayment>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+
 // Add Dapr client for interacting with Dapr services
 builder.Services.AddDaprClient();
 

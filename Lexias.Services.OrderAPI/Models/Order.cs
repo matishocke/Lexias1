@@ -7,10 +7,10 @@ namespace Lexias.Services.OrderAPI.Models
     {
         [Key]
         public string OrderId { get; set; }
-        public List<OrderItem> OrderItemsList { get; set; }
-        public DateTime OrderDate { get; set; }
-        public string CustomerId { get; set; }
+        public List<OrderItem> OrderItemsList { get; set; } = new List<OrderItem>();
+        public DateTime? OrderDate { get; set; }
+        public string? CustomerId { get; set; }
         public OrderStatus OrderStatus { get; set; } = OrderStatus.Pending;
-        public decimal TotalAmount { get; set; }
+        public decimal? TotalAmount { get; set; }
     }
 }

@@ -16,6 +16,7 @@ namespace Shared.IntegrationEvents
     public class ProcessPaymentEvent : IntegrationEventOutgoing
     {
         public decimal Amount { get; set; }
+        public string OrderId { get; set; }
     }
 
     public class ReserveItemsEvent : IntegrationEventOutgoing

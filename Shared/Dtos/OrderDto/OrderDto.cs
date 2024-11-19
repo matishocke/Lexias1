@@ -21,6 +21,6 @@ namespace Shared.Dtos.OrderDto
         public DateTime OrderDate { get; set; }
         public string CustomerId { get; set; }
         public OrderStatus Status { get; set; }
-        public decimal TotalAmount { get; set; }
+        public decimal TotalAmount { get; set; } //maybe should PaidAmount for we can make a third party(Paypal) in frontend
     }
 }
