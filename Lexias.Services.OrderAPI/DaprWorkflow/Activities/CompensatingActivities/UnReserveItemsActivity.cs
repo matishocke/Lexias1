@@ -26,7 +26,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities.CompensatingActivitie
 
         public override async Task<object?> RunAsync(WorkflowActivityContext context, List<OrderItemDto> itemsToUnreserve)
         {
-            _logger.LogInformation($"Unreserving items for OrderId: {context.InstanceId}");
+            _logger.LogInformation($"Unreserving items for WorkflowId: {context.InstanceId}");
 
             // Create an unreserve event to send to Warehouse
             var unreserveItemsEvent = new ItemsReservationFailedEvent

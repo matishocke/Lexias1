@@ -19,6 +19,11 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
         {
             try
             {
+                if (orderDto.OrderItemsList == null || !orderDto.OrderItemsList.Any())
+                {
+                    throw new ArgumentException("Order must have at least one item.");
+                }
+
                 //Calculate the totalPrice of the order
                 decimal totalAmount = 0;
                 foreach (var item in orderDto.OrderItemsList)

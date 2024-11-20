@@ -11,7 +11,7 @@ using Shared.Queues;
 
 namespace Lexias.Services.PaymentAPI.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class PaymentController : ControllerBase
     {
@@ -34,7 +34,7 @@ namespace Lexias.Services.PaymentAPI.Controllers
 
 
         [Topic(PaymentChannel.Channel, PaymentChannel.Topics.Payment)]
-        [HttpPost]
+        [HttpPost("process")]
         public async Task<IActionResult> ProcessPayment([FromBody] ProcessPaymentEvent processPaymentEvent)
         {
             _logger.LogInformation("Processing payment: {CorrelationId}, Amount: {Amount}, OrderId: {OrderId}",

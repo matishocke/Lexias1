@@ -27,11 +27,12 @@ namespace Lexias.Services.PaymentAPI.Migrations
                     b.Property<string>("PaymentId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal?>("Amount")
-                        .HasPrecision(24, 6)
-                        .HasColumnType("decimal(24,6)");
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("OrderId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("PaymentDate")
@@ -43,32 +44,6 @@ namespace Lexias.Services.PaymentAPI.Migrations
                     b.HasKey("PaymentId");
 
                     b.ToTable("Payments");
-
-                    b.HasData(
-                        new
-                        {
-                            PaymentId = "payment1",
-                            Amount = 50.00m,
-                            OrderId = "order1111",
-                            PaymentDate = new DateTime(2024, 11, 9, 15, 51, 18, 690, DateTimeKind.Utc).AddTicks(485),
-                            Status = 1
-                        },
-                        new
-                        {
-                            PaymentId = "payment2",
-                            Amount = 100.00m,
-                            OrderId = "order2222",
-                            PaymentDate = new DateTime(2024, 11, 14, 15, 51, 18, 690, DateTimeKind.Utc).AddTicks(1318),
-                            Status = 0
-                        },
-                        new
-                        {
-                            PaymentId = "payment3",
-                            Amount = 75.00m,
-                            OrderId = "order3333",
-                            PaymentDate = new DateTime(2024, 11, 17, 15, 51, 18, 690, DateTimeKind.Utc).AddTicks(1322),
-                            Status = 2
-                        });
                 });
 #pragma warning restore 612, 618
         }

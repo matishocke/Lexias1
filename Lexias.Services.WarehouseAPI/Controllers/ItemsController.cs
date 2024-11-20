@@ -10,7 +10,7 @@ using Shared.Queues;
 
 namespace Lexias.Services.WarehouseAPI.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ItemsController : ControllerBase
     {
@@ -38,7 +38,7 @@ namespace Lexias.Services.WarehouseAPI.Controllers
         //this endpoint a //Listener// for events on that channel and topic.
         //NOTE: we HAVE TO provoke ItemsReservedResultEvent back either succed nor failed because the workflow is WAITING
         [Topic(WarehouseChannel.Channel, WarehouseChannel.Topics.Reservation)]
-        [HttpPost]
+        [HttpPost("reservations")]
         public async Task<IActionResult> ReserveItems([FromBody] ReserveItemsEvent reserveItemsEvent) //[FromBody] with this we will take data from the endpoint to use them right here 
         {
             _logger.LogInformation($"Inventory request received: {reserveItemsEvent.CorrelationId}");
@@ -154,7 +154,7 @@ namespace Lexias.Services.WarehouseAPI.Controllers
 
         //Here we should products put back in stock
         [Topic(WarehouseChannel.Channel, WarehouseChannel.Topics.ReservationFailed)]
-        [HttpPost]
+        [HttpPost("reservations/failed")]
         public async Task<IActionResult> UnreserveItems([FromBody] ItemsReservationFailedEvent itemsReservationFailedEvent)
         {
             _logger.LogInformation($"Unreserve request received: {itemsReservationFailedEvent.CorrelationId}");

@@ -9,7 +9,7 @@ using Shared.Queues;
 
 namespace Lexias.Services.OrderAPI.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class WorkflowChannelController : ControllerBase
     {
@@ -28,7 +28,7 @@ namespace Lexias.Services.OrderAPI.Controllers
 
 
         [Topic(WorkflowChannel.Channel, WorkflowChannel.Topics.PaymentResult)]
-        [HttpPost]
+        [HttpPost("payment-result")]
         public async Task<IActionResult> PaymentResult([FromBody] PaymentProcessedResultEvent paymentResponse)
         {
             _logger.LogInformation($"Payment response received: Id: {paymentResponse.CorrelationId}, " +
@@ -51,7 +51,7 @@ namespace Lexias.Services.OrderAPI.Controllers
 
 
         [Topic(WorkflowChannel.Channel, WorkflowChannel.Topics.ItemsReserveResult)]
-        [HttpPost]
+        [HttpPost("reservation-result")]
         public async Task<IActionResult> ReservationResult([FromBody] ItemsReservedResultEvent itemsReservedResultEvent)
         {
             _logger.LogInformation($"Reservation response received: ID: {itemsReservedResultEvent.CorrelationId}");

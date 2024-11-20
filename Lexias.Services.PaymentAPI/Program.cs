@@ -30,8 +30,9 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 
 builder.Services.AddDbContext<AppDbContextPayment>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+    sqlServerOptions => sqlServerOptions.MigrationsAssembly("Lexias.Services.PaymentAPI"))
+);
 
 
 // Add Dapr client for interacting with Dapr services

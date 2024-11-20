@@ -7,10 +7,10 @@ namespace Lexias.Services.PaymentAPI.Models
     {
         [Key]
         public string PaymentId { get; set; }
-        public string? OrderId { get; set; }
+        public string OrderId { get; set; }
         public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
         public DateTime? PaymentDate { get; set; }
-        public decimal? Amount { get; set; }
+        public decimal Amount { get; set; }
     }
 
 }

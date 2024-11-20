@@ -23,21 +23,31 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
             // Log that the payment is being processed
             _logger.LogInformation($"Processing payment for OrderId: {paymentDto.OrderId}, Amount: {paymentDto.Amount}");
 
-            // Create payment request event
-            var processPaymentEvent = new ProcessPaymentEvent
+            try
             {
-                CorrelationId = context.InstanceId,
-                Amount = paymentDto.Amount,
-                OrderId = paymentDto.OrderId
-            };
+                // Simulate successful payment
+                var processPaymentEvent = new ProcessPaymentEvent
+                {
+                    CorrelationId = context.InstanceId,
+                    Amount = paymentDto.Amount,
+                    OrderId = paymentDto.OrderId
+                };
 
-            // Publish the payment request event
-            await _daprClient.PublishEventAsync(
-                PaymentChannel.Channel,
-                PaymentChannel.Topics.Payment,
-                processPaymentEvent);
+                await _daprClient.PublishEventAsync(
+                    PaymentChannel.Channel,
+                    PaymentChannel.Topics.Payment,
+                    processPaymentEvent);
 
-            return null;
+                _logger.LogInformation($"Payment processed successfully for OrderId: {paymentDto.OrderId}");
+            }
+            catch (Exception ex)
+            {
+                // Log and rethrow if needed, even if you assume success
+                _logger.LogError("Unexpected error during payment processing: {ErrorMessage}", ex.Message);
+                throw;
+            }
+
+            return null; // Success is always assumed
         }
     }
 }

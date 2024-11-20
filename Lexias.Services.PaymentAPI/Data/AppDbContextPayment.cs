@@ -20,35 +20,38 @@ namespace Lexias.Services.PaymentAPI.Data
             // Configure precision for Amount to avoid issues with decimals
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Amount)
-                .HasPrecision(24, 4);
+                .HasPrecision(18, 2);
 
-            // Seed Payments
-            modelBuilder.Entity<Payment>().HasData(
-                new Payment
-                {
-                    PaymentId = "payment1",
-                    OrderId = "order1111",
-                    Status = PaymentStatus.Completed,
-                    PaymentDate = DateTime.UtcNow.AddDays(-10),
-                    Amount = 50.00M
-                },
-                new Payment
-                {
-                    PaymentId = "payment2",
-                    OrderId = "order2222",
-                    Status = PaymentStatus.Pending,
-                    PaymentDate = DateTime.UtcNow.AddDays(-5),
-                    Amount = 100.00M
-                },
-                new Payment
-                {
-                    PaymentId = "payment3",
-                    OrderId = "order3333",
-                    Status = PaymentStatus.Failed,
-                    PaymentDate = DateTime.UtcNow.AddDays(-2),
-                    Amount = 75.00M
-                }
-            );
+            
+
+
+            //// Seed Payments
+            //modelBuilder.Entity<Payment>().HasData(
+            //    new Payment
+            //    {
+            //        PaymentId = "payment1",
+            //        OrderId = "order1111",
+            //        Status = PaymentStatus.Completed,
+            //        PaymentDate = DateTime.UtcNow.AddDays(-10),
+            //        Amount = 50.00M
+            //    },
+            //    new Payment
+            //    {
+            //        PaymentId = "payment2",
+            //        OrderId = "order2222",
+            //        Status = PaymentStatus.Pending,
+            //        PaymentDate = DateTime.UtcNow.AddDays(-5),
+            //        Amount = 100.00M
+            //    },
+            //    new Payment
+            //    {
+            //        PaymentId = "payment3",
+            //        OrderId = "order3333",
+            //        Status = PaymentStatus.Failed,
+            //        PaymentDate = DateTime.UtcNow.AddDays(-2),
+            //        Amount = 75.00M
+            //    }
+            //);
         }
     }
 }
