@@ -12,7 +12,7 @@ namespace Lexias.Services.OrderAPI.Data.Configurations
             //builder.HasKey(oi => oi.OrderItemId);
             
             // Set precision for Price to avoid issues with decimals
-            builder.Property(oi => oi.Price).HasPrecision(18, 2);
+            //builder.Property(oi => oi.Price).HasPrecision(18, 2);
         }
     }
 }

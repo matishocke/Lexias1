@@ -11,7 +11,7 @@ namespace Lexias.Services.OrderAPI.Data
         {
         }
         public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderItem> OrderItems { get; set; } // Separate table for OrderItems
+        public DbSet<OrderItem> OrderItems { get; set; } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -19,7 +19,6 @@ namespace Lexias.Services.OrderAPI.Data
 
             //Apply the configurations
             modelBuilder.ApplyConfiguration(new OrderConfiguration());
-            modelBuilder.ApplyConfiguration(new OrderItemConfiguration());
 
 
 

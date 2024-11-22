@@ -24,12 +24,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
                     throw new ArgumentException("Order must have at least one item.");
                 }
 
-                //Calculate the totalPrice of the order
-                decimal totalAmount = 0;
-                foreach (var item in orderDto.OrderItemsList)
-                {
-                    totalAmount = totalAmount + item.Quantity * item.Price;
-                }
+                
 
                 // Convert OrderDto to Order inside the activity
                 var order = new Order
@@ -40,13 +35,11 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
                         OrderItemId = item.OrderItemId,  // Use the OrderItemId from OrderDto we created in workflow
                         OrderId = orderDto.OrderId,      // Set the OrderId on each OrderItem
                         ProductId = item.ProductId,
-                        ProductName = item.ProductName,
                         Quantity = item.Quantity,
-                        Price = item.Price,
                     }).ToList(),
                     OrderDate = DateTime.UtcNow,
                     CustomerId = orderDto.CustomerId,
-                    TotalAmount = totalAmount,
+                    TotalAmount = orderDto.TotalAmount,
                     OrderStatus = orderDto.Status
                 };
 

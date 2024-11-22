@@ -45,7 +45,7 @@ namespace Lexias.Services.WarehouseAPI.Controllers
 
             //+ Check if all items are available in the inventory
             bool itemsAvailable = true;
-
+            decimal totalAmount = 0; // Initialize TotalAmount
 
             //first we check if we have the product and enough of each for the order
             foreach (var item in reserveItemsEvent.OrderItemsList)
@@ -59,6 +59,18 @@ namespace Lexias.Services.WarehouseAPI.Controllers
                     itemsAvailable = false;
                     break;
                 }
+
+                if (product.Price == null)            //Check the price is not Null
+                {
+                    _logger.LogWarning($"Product {product.ProductId} has a null price. Defaulting to 0.");
+                }
+                totalAmount += (product.Price ?? 0) * item.Quantity;          // Calculate TotalAmount
+
+
+                _logger.LogInformation($"Processing item: " +
+                    $"{item.ProductId}," +
+                    $" Quantity: {item.Quantity}," +
+                    $" Price: {product.Price ?? 0}");
             }
 
 
@@ -74,12 +86,11 @@ namespace Lexias.Services.WarehouseAPI.Controllers
                     OrderItems = reserveItemsEvent.OrderItemsList,
                     Reason = "Insufficient inventory"
                 };
-
-                //Sender //now from here we will publish the data back
-                await _daprClient.PublishEventAsync(
+                await _daprClient.PublishEventAsync(   //Sender //now from here we will publish the data back //down
                     WarehouseChannel.Channel,
                     WarehouseChannel.Topics.ReservationFailed,
                     itemReservationFailedEvent);
+
 
 
                 //we also going to make a publish itemsReservedResultEvent as a failed scenario with a State = ResultState.Failed,
@@ -87,9 +98,9 @@ namespace Lexias.Services.WarehouseAPI.Controllers
                 var itemsReservedResultEvent2failed = new ItemsReservedResultEvent
                 {
                     CorrelationId = reserveItemsEvent.CorrelationId,
-                    State = ResultState.Failed
+                    State = ResultState.Failed,
+                    TotalAmount = 0
                 };
-
                 await _daprClient.PublishEventAsync(
                     WorkflowChannel.Channel,
                     WorkflowChannel.Topics.ItemsReserveResult,
@@ -100,7 +111,6 @@ namespace Lexias.Services.WarehouseAPI.Controllers
                 _logger.LogInformation($"Reservation failed for Order: " +
                     $"{itemReservationFailedEvent.CorrelationId}, " +
                     $"Reason: {itemReservationFailedEvent.Reason}");
-
 
                 return BadRequest(itemReservationFailedEvent);
             }
@@ -121,17 +131,14 @@ namespace Lexias.Services.WarehouseAPI.Controllers
 
 
 
-
-
             // Publish successful reservation event
             var itemsReservedResultEvent = new ItemsReservedResultEvent
             {
                 CorrelationId = reserveItemsEvent.CorrelationId,
-                State = ResultState.Succeeded
+                State = ResultState.Succeeded,
+                TotalAmount = totalAmount
             };
-            
-            //Sender //now from here we will publish the data back
-            await _daprClient.PublishEventAsync(
+            await _daprClient.PublishEventAsync(       //Sender //now from here we will publish the data back
                 WorkflowChannel.Channel,
                 WorkflowChannel.Topics.ItemsReserveResult, 
                 itemsReservedResultEvent);
@@ -170,7 +177,7 @@ namespace Lexias.Services.WarehouseAPI.Controllers
                     product.StockQuantity += item.Quantity;
                     await _db.UpdateProductAsync(product);
                 }
-                _logger.LogInformation($"Unreserving item: {item.ProductName}, Quantity: {item.Quantity}");
+                _logger.LogInformation($"Unreserving item: {product.ProductId}, Quantity: {item.Quantity}");
             }
 
             return Ok();

@@ -31,6 +31,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexias.Services.WarehouseAP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexias.Services.ContactUsAPI", "Lexias.Services.ContactUsAPI\Lexias.Services.ContactUsAPI.csproj", "{3B83FF4F-CD4D-4EAB-B6B2-E53958A9637C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexias.AppHost", "Lexias.AppHost\Lexias.AppHost.csproj", "{9B1BEED5-876A-4199-9F2E-2CBE8836DDC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexias.ServiceDefaults", "Lexias.ServiceDefaults\Lexias.ServiceDefaults.csproj", "{A3D42DD5-33CE-42FC-BD10-7906DE59ABA3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +81,14 @@ Global
 		{3B83FF4F-CD4D-4EAB-B6B2-E53958A9637C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B83FF4F-CD4D-4EAB-B6B2-E53958A9637C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B83FF4F-CD4D-4EAB-B6B2-E53958A9637C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B1BEED5-876A-4199-9F2E-2CBE8836DDC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B1BEED5-876A-4199-9F2E-2CBE8836DDC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B1BEED5-876A-4199-9F2E-2CBE8836DDC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B1BEED5-876A-4199-9F2E-2CBE8836DDC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3D42DD5-33CE-42FC-BD10-7906DE59ABA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3D42DD5-33CE-42FC-BD10-7906DE59ABA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3D42DD5-33CE-42FC-BD10-7906DE59ABA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3D42DD5-33CE-42FC-BD10-7906DE59ABA3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

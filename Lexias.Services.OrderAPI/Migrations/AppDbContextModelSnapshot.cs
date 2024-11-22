@@ -54,14 +54,7 @@ namespace Lexias.Services.OrderAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal?>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<string>("ProductId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProductName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Quantity")

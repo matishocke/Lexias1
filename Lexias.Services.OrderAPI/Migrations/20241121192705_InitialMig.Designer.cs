@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lexias.Services.OrderAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241119131903_WithourSeeding2")]
-    partial class WithourSeeding2
+    [Migration("20241121192705_InitialMig")]
+    partial class InitialMig
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,14 +57,7 @@ namespace Lexias.Services.OrderAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal?>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<string>("ProductId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProductName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Quantity")

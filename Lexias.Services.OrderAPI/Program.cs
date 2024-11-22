@@ -13,6 +13,9 @@ using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//Aspire
+builder.AddServiceDefaults();
+
 
 
 #region Dapr setup
@@ -87,6 +90,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 
 

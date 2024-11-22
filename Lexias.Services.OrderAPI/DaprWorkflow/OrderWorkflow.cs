@@ -133,6 +133,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
                     // Break out of the loop if reservation succeeds
                     if (reservationResult.State == ResultState.Succeeded)
                     {
+                        orderDto.TotalAmount = reservationResult.TotalAmount;      // Update TotalAmount in OrderDto from the reservation result
                         break;
                     }
 
@@ -159,7 +160,8 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
             {
                 await workflowContext.CallActivityAsync(
                     nameof(NotifyActivity),
-                    new Notification($"Reservation failed for Order {orderDto.OrderId} after {maxRetries} attempts.", orderDto));
+                    new Notification($"Reservation failed for Order {orderDto.OrderId} after {maxRetries} attempts.",
+                    orderDto));
 
                 // Compensating action: delete order
                 await workflowContext.CallActivityAsync(nameof(DeleteOrderActivity), orderDto.OrderId);
@@ -176,9 +178,11 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
             // If reservation succeeded so Update the status to
             orderDto.Status = OrderStatus.InventoryReserved;
 
+            // Log the updated TotalAmount
             await workflowContext.CallActivityAsync(
                 nameof(NotifyActivity),
-                new Notification($"Inventory reservation successful for Order {orderDto.OrderId}.",
+                new Notification($"Inventory reservation successful for Order {orderDto.OrderId}." +
+                $" TotalAmount: {orderDto.TotalAmount}",
                 orderDto));
 
 

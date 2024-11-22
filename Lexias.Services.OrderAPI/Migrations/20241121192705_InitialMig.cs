@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Lexias.Services.OrderAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class WithourSeeding : Migration
+    public partial class InitialMig : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -33,9 +33,7 @@ namespace Lexias.Services.OrderAPI.Migrations
                     OrderItemId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     OrderId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProductId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProductName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Quantity = table.Column<int>(type: "int", nullable: true),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true)
+                    Quantity = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
