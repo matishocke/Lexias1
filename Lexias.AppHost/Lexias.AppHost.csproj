@@ -17,6 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\API.Gateway\API.Gateway.csproj" />
+    <ProjectReference Include="..\Lexias.Services.ContactUsAPI\Lexias.Services.ContactUsAPI.csproj" />
+    <ProjectReference Include="..\Lexias.Services.CouponAPI\Lexias.Services.CouponAPI.csproj" />
     <ProjectReference Include="..\Lexias.Services.OrderAPI\Lexias.Services.OrderAPI.csproj" />
     <ProjectReference Include="..\Lexias.Services.PaymentAPI\Lexias.Services.PaymentAPI.csproj" />
     <ProjectReference Include="..\Lexias.Services.WarehouseAPI\Lexias.Services.WarehouseAPI.csproj" />

@@ -1,0 +1,95 @@
+﻿@using Newtonsoft.Json
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@using UmbracoLexiasWeb.Controller;
+@using UmbracoLexiasWeb.Models.ViewModels.OrderViewModel;
+
+@inject UmbracoLexiasWeb.Services.IService.IGatewayOrderService _gatewayOrderService;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+
+
+
+    Layout = "master.cshtml";
+
+    // Deserialize OrderList from TempData, if available
+    List<OrderViewModel> orderList = TempData["OrderList"] != null
+        ? JsonConvert.DeserializeObject<List<OrderViewModel>>(TempData["OrderList"].ToString())
+        : new List<OrderViewModel>();
+
+    string errorMessage = TempData["Error"] as string;
+
+    // Fetch all orders only if no specific search results exist in TempData
+    if (!orderList.Any())
+    {
+        try
+        {
+            var ordersDto = await _gatewayOrderService.GetAllOrdersAsync();
+            if (ordersDto != null && ordersDto.Any())
+            {
+                orderList = ordersDto.Select(order => new OrderViewModel
+                        {
+                            OrderId = order.OrderId,
+                            CustomerId = order.CustomerId,
+                            OrderDate = order.OrderDate,
+                            TotalAmount = order.TotalAmount,
+                            Status = order.Status.ToString(),
+                            OrderItemsList = order.OrderItemsList.Select(item => new OrderItemViewModel
+                            {
+                                OrderItemId = item.OrderItemId,
+                                ProductId = item.ProductId,
+                                Quantity = item.Quantity
+                            }).ToList()
+                        }).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error occurred while fetching data: {ex.Message}";
+        }
+    }
+}
+
+<div class="container mt-4">
+    <!-- Display Error Message -->
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    <!-- Render the search form -->
+    @Html.Partial("~/Views/Partials/Order/OrderList.cshtml")
+
+    <hr />
+
+    <!-- Render the order list -->
+    @if (orderList != null && orderList.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer ID</th>
+                    <th>Order Date</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in orderList)
+                {
+                    <tr>
+                        <td>@order.OrderId</td>
+                        <td>@order.CustomerId</td>
+                        <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                        <td>@order.TotalAmount.ToString("C")</td>
+                        <td>@order.Status</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class="text-center">No orders found.</p>
+    }
+</div>

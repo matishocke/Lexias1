@@ -1,0 +1,16 @@
+﻿@using UmbracoLexiasWeb.Controller
+
+
+@using (Html.BeginUmbracoForm<OrderSurfaceController>(nameof(OrderSurfaceController.SearchOrder)))
+{
+    <div class="row mb-4">
+        <div class="col-8">
+            <input type="text" name="searchOrderId" class="form-control" placeholder="Enter Order ID to search" />
+        </div>
+        <div class="col-4 text-end">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> Search
+            </button>
+        </div>
+    </div>
+}

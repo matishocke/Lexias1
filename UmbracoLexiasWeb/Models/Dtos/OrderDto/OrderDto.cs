@@ -1,7 +1,6 @@
-﻿using Shared.Enum;
-using System.Text.Json.Serialization;
+﻿using UmbracoLexiasWeb.Models.Enums;
 
-namespace Shared.Dtos.OrderDto
+namespace UmbracoLexiasWeb.Models.Dtos.OrderDto
 {
     public class OrderDto
     {

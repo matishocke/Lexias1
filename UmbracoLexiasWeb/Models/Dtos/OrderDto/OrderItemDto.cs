@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Shared.Dtos.OrderDto
+﻿namespace UmbracoLexiasWeb.Models.Dtos.OrderDto
 {
     public class OrderItemDto
     {

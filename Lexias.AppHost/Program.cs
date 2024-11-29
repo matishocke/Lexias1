@@ -1,3 +1,5 @@
+using Aspire.Hosting.Dapr;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Dapr Components
@@ -8,7 +10,7 @@ var warehouseChannel = builder.AddDaprPubSub("warehousechannel"); // Inventory r
 
 // Add OrderAPI service
 builder.AddProject<Projects.Lexias_Services_OrderAPI>("lexias-services-orderapi")
-    .WithDaprSidecar()               // Starts Dapr sidecar alongside the service
+    .WithDaprSidecar()                               // Starts Dapr sidecar alongside the service
     .WithReference(stateStore)       // Enables state storage for OrderAPI
     .WithReference(workflowChannel)  // OrderAPI interacts with the workflow channel
     .WithReference(paymentChannel)   // Publishes payment requests
@@ -25,6 +27,16 @@ builder.AddProject<Projects.Lexias_Services_WarehouseAPI>("lexias-services-wareh
     .WithDaprSidecar()               // Starts Dapr sidecar for WarehouseAPI
     .WithReference(workflowChannel)  // Sends reservation results back to the workflow
     .WithReference(warehouseChannel); // Processes inventory reservation requests
+
+
+
+builder.AddProject<Projects.API_Gateway>("api-gateway");
+
+
+builder.AddProject<Projects.Lexias_Services_CouponAPI>("lexias-services-couponapi");
+
+
+builder.AddProject<Projects.Lexias_Services_ContactUsAPI>("lexias-services-contactusapi");
 
 
 builder.Build().Run();

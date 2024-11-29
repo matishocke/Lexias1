@@ -24,4 +24,8 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Lexias.ServiceDefaults\Lexias.ServiceDefaults.csproj" />
+  </ItemGroup>
+
 </Project>

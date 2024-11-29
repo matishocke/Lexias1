@@ -32,7 +32,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow.Activities
                     OrderId = orderDto.OrderId,  
                     OrderItemsList = orderDto.OrderItemsList.Select(item => new OrderItem
                     {
-                        OrderItemId = item.OrderItemId,  // Use the OrderItemId from OrderDto we created in workflow
+                        OrderItemId = string.IsNullOrEmpty(item.OrderItemId) ? Guid.NewGuid().ToString() : item.OrderItemId, // Generate if missing   // Use the OrderItemId from OrderDto we created in workflow
                         OrderId = orderDto.OrderId,      // Set the OrderId on each OrderItem
                         ProductId = item.ProductId,
                         Quantity = item.Quantity,

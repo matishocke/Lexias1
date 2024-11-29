@@ -1,11 +1,8 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Shared.Dtos.OrderDto
+﻿namespace UmbracoLexiasWeb.Models.ViewModels.OrderViewModel
 {
-    public class OrderItemDto
+    public class OrderItemViewModel
     {
         public string OrderItemId { get; set; }
-        public string OrderId { get; set; }
         public string ProductId { get; set; }
         public int Quantity { get; set; }
     }

@@ -48,23 +48,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
     options.ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.NavigationBaseIncludeIgnored));
 }); 
-
-
-
-
-//builder.Services.AddDbContext<BackendDbContext>(
-//    options =>
-//        options.UseSqlServer(builder.Configuration.GetConnectionString("BackendDbConnection"), 
-//        x => x.MigrationsAssembly("SqlServerContext.Migrations")));
-
-
-
-
 // Register Repositories for Dependency Injection
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 
-//builder.Services.AddDaprClient();
+
+
 
 
 builder.Services.AddDaprWorkflow(options =>
@@ -85,7 +74,14 @@ builder.Services.AddDaprWorkflow(options =>
     options.RegisterActivity<UnReserveItemsActivity>();
 });
 
-//builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

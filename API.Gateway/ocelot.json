@@ -1,17 +1,29 @@
 {
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:5010" // Ocelot's HTTP base URL
+    "BaseUrl": "https://localhost:7157" // Ocelot's HTTPs base URL
   },
   "Routes": [
     {
-      "UpstreamPathTemplate": "/gateway/order/hello",
+      "UpstreamPathTemplate": "/gateway/Orders", //this is incoming request
       "UpstreamHttpMethod": [ "GET" ],
-      "DownstreamPathTemplate": "/hello",
+      "DownstreamPathTemplate": "/api/order/GetOrders", //this is what actually we gotta go and find in order controller
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 7004
+          "Port": 5134
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/Orders/{orderId}", //this is incoming request
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/order/GetOrderById/{orderId}", //this is what actually we gotta go and find in order controller
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5134
         }
       ]
     },

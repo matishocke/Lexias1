@@ -24,9 +24,16 @@ builder.Services.AddHttpClient("ContactUsAPI", client =>
     client.BaseAddress = new Uri(builder.Configuration["BaseUrlContactUs"]); // BaseUrl from appsettings.json
 });
 
+builder.Services.AddHttpClient("GatewayAPI", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["GatewayBaseUrl"]); // Replace with your Ocelot Gateway URL
+});
+
+
 // Register your custom services
 builder.Services.AddScoped<ICouponService, CouponService>();
 builder.Services.AddScoped<IContactUsService, ContactUsService>();
+builder.Services.AddScoped<IGatewayOrderService, GatewayOrderService>();
 
 WebApplication app = builder.Build();
 

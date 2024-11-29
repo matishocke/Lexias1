@@ -177,7 +177,7 @@ namespace Lexias.Services.WarehouseAPI.Controllers
                     product.StockQuantity += item.Quantity;
                     await _db.UpdateProductAsync(product);
                 }
-                _logger.LogInformation($"Unreserving item: {product.ProductId}, Quantity: {item.Quantity}");
+                //_logger.LogInformation($"Unreserving item: {product.ProductId}, Quantity: {item.Quantity}");
             }
 
             return Ok();

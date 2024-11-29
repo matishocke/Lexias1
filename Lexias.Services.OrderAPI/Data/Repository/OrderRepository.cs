@@ -20,6 +20,7 @@ namespace Lexias.Services.OrderAPI.Data.Repository
         {
             var foundAllOrders = await _context.Orders.Include(o => o.OrderItemsList).ToListAsync();
             return foundAllOrders;
+
         }
 
         public async Task<Order> GetOrderByIdAsync(string orderId)

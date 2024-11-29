@@ -22,16 +22,13 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
 
             // Step 1: Set the order status to Confirmed
             orderDto.Status = OrderStatus.Received;
-            orderDto.OrderId = Guid.NewGuid().ToString(); //we create an Id for orderDto 
-            
-            
+            orderDto.OrderId = workflowContext.InstanceId; //we create an Id for orderDto 
+
+
             // Generate OrderItemIds if not already present
             foreach (var item in orderDto.OrderItemsList)
             {
-                if (string.IsNullOrEmpty(item.OrderItemId))
-                {
-                    item.OrderItemId = Guid.NewGuid().ToString();
-                }
+                item.OrderItemId = Guid.NewGuid().ToString();
             }
 
 
@@ -75,17 +72,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
 
 
 
-            ////List of OrderItems 
-            //var orderItemsInsideOrder = orderDto.OrderItemsList.Select(item => new OrderItemDto
-            //{
-            //    ProductId = item.ProductId,
-            //    Quantity = item.Quantity,
-            //    ItemType = item.ItemType
-            //}).ToList();
-
-            //// Step XX3XX: Reserve Items (Sending List of OrderItems)
-            //var orderItemsToReserve = new InventoryRequestDto(orderItemsInsideOrder);
-
+            
 
 
 
@@ -241,3 +228,20 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
         }
     }
 }
+
+
+
+
+
+
+
+////List of OrderItems 
+//var orderItemsInsideOrder = orderDto.OrderItemsList.Select(item => new OrderItemDto
+//{
+//    ProductId = item.ProductId,
+//    Quantity = item.Quantity,
+//    ItemType = item.ItemType
+//}).ToList();
+
+//// Step XX3XX: Reserve Items (Sending List of OrderItems)
+//var orderItemsToReserve = new InventoryRequestDto(orderItemsInsideOrder);

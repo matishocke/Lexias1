@@ -63,7 +63,7 @@ app.UseCloudEvents();
 app.MapSubscribeHandler(); // Kun ved explicit pubsub
 #endregion
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
