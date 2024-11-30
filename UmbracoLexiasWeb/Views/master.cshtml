@@ -1,22 +1,52 @@
-﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+﻿@using Umbraco.Cms.Core.Services
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@inject IMemberService MemberService
+
+
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @{
-	Layout = null;
+
+    Layout = null;
 
     var isLoggedIn = Context.User?.Identity?.IsAuthenticated ?? false;
+    string[] userRoles = new string[0];
+
+    if (isLoggedIn)
+    {
+        // Get the logged-in user's name
+        var username = Context.User?.Identity?.Name;
+
+        // Fetch the member by username
+        var member = MemberService.GetByUsername(username);
+
+        if (member != null)
+        {
+            // Get all roles for the member
+            userRoles = MemberService.GetAllRoles(member.Id).ToArray();
+        }
+    }
+    // Example: Check if the user is an admin
+    var isAdmin = userRoles.Contains("Admin");
+
 
 
     // Count all children directly under the root node
-    var totalProjects = Model.Root().Children().Count();  
+    var totalProjects = Model.Root().Children().Count();
 
     IPublishedContent root = Model.Root();
     var colorGradient1 = root.Value("colorSettingsGradientStart") ?? "#1b264f";
     var colorGradient2 = root.Value("colorSettingsGradientEnd") ?? "#3e4c9f";
     var colorAccent1 = root.Value("colorSettingsAccent1") ?? "#e9b1aa";
     var colorAccent2 = root.Value("colorSettingsAccent2") ?? "#f5c0ba";
+
+
+
 }
 
+@{
 
+    var theMemberloggedin = Context.User?.Identity?.GetUserId();
+}
 
 
 
@@ -79,24 +109,54 @@
 
                 @if (isLoggedIn)
                 {
-                    <!-- Children in NavBar -->
-                    @foreach (var child in Model.Root().Children())
+                    // If memeber is logged in
+                    if (isAdmin)
                     {
-                        if (child.Name != "Collections" && child.Name != "WhitepaperPage" && child.Name != "Coupon" && child.Value<bool>("umbracoNaviHideIt") == false && child.Name != "Register")
+                        // Admin can see all child nodes
+                        @foreach (var child in Model.Root().Children())
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" href="@child.Url()">@child.Name</a>
-                            </li>
+                            if (child.Name != "Collections" && 
+                            child.Name != "WhitepaperPage" && 
+                            child.Name != "Coupon" && 
+                            child.Value<bool>("umbracoNaviHideIt") == false && 
+                            child.Name != "Register")                            
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" href="@child.Url()">@child.Name</a>
+                                </li>
+                            }
                         }
                     }
-                    
+                    else
+                    {
+                        // Non-admin logged-in users have restricted view
+                        @foreach (var child in Model.Root().Children())
+                        {
+                            if (child.Name != "OrderIndexPage" && 
+                            child.Name != "ContactUsIndex" && 
+                            child.Name != "Coupon" && 
+                            child.Name != "Collections" && 
+                            child.Name != "WhitepaperPage" && 
+                            child.Value<bool>("umbracoNaviHideIt") == false)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" href="@child.Url()">@child.Name</a>
+                                </li>
+                            }
+                        }
+                    }
                 }
                 else
                 {
-                        <!-- Children in NavBar -->
+                    // Public view for guests (NOT logged in)
                     @foreach (var child in Model.Root().Children())
                     {
-                        if (child.Name != "Collections" && child.Name != "WhitepaperPage" && child.Name != "Coupon" && child.Value<bool>("umbracoNaviHideIt") == false)
+                        if (child.Name != "OrderIndexPage" && 
+                        child.Name != "ContactUsIndex" && 
+                        child.Name != "Coupon" && 
+                        child.Name != "Collections" && 
+                        child.Name != "WhitepaperPage" && 
+                        child.Value<bool>("umbracoNaviHideIt") == false)
                         {
                             <li class="nav-item">
                                 <a class="nav-link" href="@child.Url()">@child.Name</a>
@@ -122,9 +182,19 @@
                         <!-- Specific items in dropdown -->
                         @foreach (var child in Model.Root().Children())
                         {
-                            if (child.Name == "Collections" || child.Name == "Coupon")
+                            if (isAdmin)
                             {
-                                <li><a class="dropdown-item" href="@child.Url()">@child.Name</a></li>
+                                if (child.Name == "Collections" || child.Name == "Coupon")
+                                {
+                                    <li><a class="dropdown-item" href="@child.Url()">@child.Name</a></li>
+                                }
+                            }
+                            else
+                            {
+                                if (child.Name == "Collections")
+                                {
+                                    <li><a class="dropdown-item" href="@child.Url()">@child.Name</a></li>
+                                }
                             }
                         }
                         <!-- Line -->

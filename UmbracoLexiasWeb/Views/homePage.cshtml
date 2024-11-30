@@ -8,6 +8,21 @@
     // Get the URL for the home image or fallback to a default image if not set
     var backgroundImageUrl = imageHome != null ? imageHome.Url() : "/images/default-background.jpg";
 
+
+
+    // Fetch the specific child nodes
+    var productsPage = Model.Root().Children()
+        .Where(x => x.Name == "Him" || x.Name == "Her" || x.Name == "Children" || x.Name == "Shoes")
+        .ToList();
+    // Randomly pick one of the child pages
+    var random = new Random();
+    IPublishedContent selectedPage = null;
+    if (productsPage.Any())
+    {
+        selectedPage = productsPage[random.Next(productsPage.Count)];
+    }
+    // Use the URL of the selected page or fallback
+    var shopNowUrl = selectedPage?.Url() ?? "";
 }
 
 
@@ -18,7 +33,7 @@
             @Model.Value("highLightText")
         </h1>
         <p class="lead">Explore our latest collection and find the perfect outfit for any occasion.</p>
-        <a href="/shop" class="btn btn-primary btn-lg shop-now-btn">Shop Now</a>
+        <a href="@shopNowUrl" class="btn btn-primary btn-lg shop-now-btn">Shop Now</a>
     </div>
 </div>
 
