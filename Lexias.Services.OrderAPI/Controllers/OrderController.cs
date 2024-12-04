@@ -41,7 +41,7 @@ namespace Lexias.Services.OrderAPI.Controllers
                 // Start the workflow with the OrderDto object
                 var startResponse =
                      await _daprClient.StartWorkflowAsync(workflowComponentName, workflowName, instanceId, orderDto);
-                _logger.LogInformation($"Workflow started: WorkflowId={startResponse.InstanceId}");
+                _logger.LogInformation($"Step1.O: Workflow started: WorkflowId={startResponse.InstanceId}");
 
                 return Ok(startResponse);
             }

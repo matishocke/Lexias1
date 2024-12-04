@@ -37,7 +37,7 @@ namespace Lexias.Services.PaymentAPI.Controllers
         [HttpPost("process")]
         public async Task<IActionResult> ProcessPayment([FromBody] ProcessPaymentEvent processPaymentEvent)
         {
-            _logger.LogInformation("Processing payment: {CorrelationId}, Amount: {Amount}, OrderId: {OrderId}",
+            _logger.LogInformation("Step1.P: Processing payment: {CorrelationId}, Amount: {Amount}, OrderId: {OrderId}",
                 processPaymentEvent.CorrelationId,
                 processPaymentEvent.Amount,
                 processPaymentEvent.OrderId);
@@ -85,7 +85,7 @@ namespace Lexias.Services.PaymentAPI.Controllers
                 paymentProcessedResultEvent);
 
 
-            _logger.LogInformation("Payment processed: {CorrelationId}, {Amount}, {State}",
+            _logger.LogInformation("Step2.P: Payment processed: {CorrelationId}, {Amount}, {State}",
                 paymentProcessedResultEvent.CorrelationId, 
                 paymentProcessedResultEvent.Amount,
                 paymentProcessedResultEvent.State);

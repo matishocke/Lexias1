@@ -41,7 +41,7 @@ namespace Lexias.Services.WarehouseAPI.Controllers
         [HttpPost("reservations")]
         public async Task<IActionResult> ReserveItems([FromBody] ReserveItemsEvent reserveItemsEvent) //[FromBody] with this we will take data from the endpoint to use them right here 
         {
-            _logger.LogInformation($"Inventory request received: {reserveItemsEvent.CorrelationId}");
+            _logger.LogInformation($"Step1.W: Inventory request received: {reserveItemsEvent.CorrelationId}");
 
             //+ Check if all items are available in the inventory
             bool itemsAvailable = true;
@@ -67,7 +67,7 @@ namespace Lexias.Services.WarehouseAPI.Controllers
                 totalAmount += (product.Price ?? 0) * item.Quantity;          // Calculate TotalAmount
 
 
-                _logger.LogInformation($"Processing item: " +
+                _logger.LogInformation($"Step2.W: Processing item: " +
                     $"{item.ProductId}," +
                     $" Quantity: {item.Quantity}," +
                     $" Price: {product.Price ?? 0}");
@@ -132,7 +132,7 @@ namespace Lexias.Services.WarehouseAPI.Controllers
             
             
             
-            _logger.LogInformation($"Items reserved: " +
+            _logger.LogInformation($"Step3.W: Items reserved: " +
                 $"{itemsReservedResultEvent.CorrelationId}," +
                 $" State: {itemsReservedResultEvent.State}");
 

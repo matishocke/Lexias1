@@ -36,7 +36,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
             //Notify
             await workflowContext.CallActivityAsync(
                 nameof(NotifyActivity),
-                new Notification($"Order {orderDto.OrderId} received from Customer {orderDto.CustomerId}.",
+                new Notification($"Step2.O: Order {orderDto.OrderId} received from Customer {orderDto.CustomerId}.",
                 orderDto));
 
 
@@ -66,7 +66,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
             // Notify that inventory reservation is being initiated
             await workflowContext.CallActivityAsync(
                 nameof(NotifyActivity),
-                new Notification($"Initiating inventory reservation for Order {orderDto.OrderId}.", orderDto));
+                new Notification($"Step3.O: Initiating inventory reservation for Order {orderDto.OrderId}.", orderDto));
 
 
 
@@ -78,7 +78,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
             //Notify
             await workflowContext.CallActivityAsync(
                 nameof(NotifyActivity),
-                new Notification($"Waiting for reservation confirmation for Order {orderDto.OrderId}.", 
+                new Notification($"Step4.O: Waiting for reservation confirmation for Order {orderDto.OrderId}.", 
                 orderDto));
 
             //ReserveItemsActivity has Event is going to bring ItemsReservedResultEvent
@@ -102,7 +102,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
 
             await workflowContext.CallActivityAsync(
                 nameof(NotifyActivity),
-                new Notification($"Inventory reservation successful for Order {orderDto.OrderId}." +
+                new Notification($"Step5.O: Inventory reservation successful for Order {orderDto.OrderId}." +
                 $" TotalAmount: {orderDto.TotalAmount}",
                 orderDto));
 
@@ -128,7 +128,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
             //Notify
             await workflowContext.CallActivityAsync(
                 nameof(NotifyActivity),
-                new Notification($"Waiting for payment for Order {orderDto.OrderId}.", orderDto));
+                new Notification($"Step6.O: Waiting for payment for Order {orderDto.OrderId}.", orderDto));
 
             // Step 6: Wait for Payment Result
             var paymentResult = await workflowContext.WaitForExternalEventAsync<PaymentProcessedResultEvent>(
@@ -147,7 +147,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
             orderDto.Status = OrderStatus.Confirmed;
             await workflowContext.CallActivityAsync(
                 nameof(NotifyActivity),
-                new Notification($"Order {orderDto.OrderId} successfully completed.", orderDto));
+                new Notification($"Step7.O: Order {orderDto.OrderId} successfully completed.", orderDto));
 
             return new OrderResultDto { OrderId = orderDto.OrderId, OrderStatus = OrderStatus.Confirmed };
         }
