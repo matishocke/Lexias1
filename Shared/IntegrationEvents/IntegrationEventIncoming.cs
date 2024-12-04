@@ -27,6 +27,7 @@ namespace Shared.IntegrationEvents
     public class ItemsReservedResultEvent : IntegrationEventIncoming
     {
         public decimal TotalAmount { get; set; }
+        public string Reason { get; set; } = string.Empty;
     }
 
 

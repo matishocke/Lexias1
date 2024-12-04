@@ -36,7 +36,7 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
             //Notify
             await workflowContext.CallActivityAsync(
                 nameof(NotifyActivity),
-                new Notification($"Order {orderDto.OrderId} received from {orderDto.CustomerId}.",
+                new Notification($"Order {orderDto.OrderId} received from Customer {orderDto.CustomerId}.",
                 orderDto));
 
 
@@ -47,32 +47,13 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
                 orderDto);
 
 
-            // If creating the order fails, delete it and return with an error message
+            //// Failed If creating the order fails, delete it and return with an error message
             if (createOrderResult.OrderStatus == OrderStatus.Cancelled)
-            {
-                // Call DeleteOrderActivity to remove the failed order from the database
-                await workflowContext.CallActivityAsync(
-                    nameof(DeleteOrderActivity),
-                    orderDto.OrderId);
-
-                // Notify of order cancellation
-                await workflowContext.CallActivityAsync(
-                    nameof(NotifyActivity),
-                    new Notification($"Order {orderDto.OrderId} creation failed and was deleted.", orderDto));
-
-                // Return the OrderResult being Cancelledd
-                return new OrderResultDto
-                {
-                    OrderId = orderDto.OrderId,
-                    OrderStatus = OrderStatus.Cancelled,
-                    Message = createOrderResult.Message
-                };
-            }
+                return await HandleOrderCreationFailure(workflowContext, orderDto, createOrderResult);
 
 
 
 
-            
 
 
 
@@ -102,75 +83,31 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
 
             //ReserveItemsActivity has Event is going to bring ItemsReservedResultEvent
 
+            //*********************
             // Step 4: Wait for Items Reserved Event (Response)
             //this will take the data from WorkflowController because WorkflowController is listening to other Services
-            ItemsReservedResultEvent reservationResult = null;
-
-            int maxRetries = 3;
-            int attempt = 0;
-            while (attempt < maxRetries)
-            {
-                attempt++;
-                try
-                {
-                    reservationResult = await workflowContext.WaitForExternalEventAsync<ItemsReservedResultEvent>(
+            var reservationResult = await workflowContext.WaitForExternalEventAsync<ItemsReservedResultEvent>(
                         WorkflowChannelEvents.ItemReservedEvent,
-                        TimeSpan.FromMinutes(10)); // Timeout for each attempt
-
-                    // Break out of the loop if reservation succeeds
-                    if (reservationResult.State == ResultState.Succeeded)
-                    {
-                        orderDto.TotalAmount = reservationResult.TotalAmount;      // Update TotalAmount in OrderDto from the reservation result
-                        break;
-                    }
-
-                    // Log the failed reservation attempt
-                    await workflowContext.CallActivityAsync(
-                        nameof(NotifyActivity),
-                        new Notification($"Reservation attempt {attempt} failed for Order {orderDto.OrderId}. Retrying...", orderDto));
-                }
-                catch (TimeoutException)
-                {
-                    await workflowContext.CallActivityAsync(
-                        nameof(NotifyActivity),
-                        new Notification($"Timeout during reservation attempt {attempt} for Order {orderDto.OrderId}.", orderDto));
-                }
-
-                // Wait before retrying (exponential backoff)
-                await Task.Delay(TimeSpan.FromSeconds(5 * attempt));
-            }
+                        TimeSpan.FromMinutes(10)); // Timeout for the event
 
 
-
-            // Check final reservation result
+            //Failed Handle reservation failure
             if (reservationResult == null || reservationResult.State == ResultState.Failed)
-            {
-                await workflowContext.CallActivityAsync(
-                    nameof(NotifyActivity),
-                    new Notification($"Reservation failed for Order {orderDto.OrderId} after {maxRetries} attempts.",
-                    orderDto));
-
-                // Compensating action: delete order
-                await workflowContext.CallActivityAsync(nameof(DeleteOrderActivity), orderDto.OrderId);
-
-                return new OrderResultDto
-                {
-                    OrderId = orderDto.OrderId,
-                    OrderStatus = OrderStatus.Cancelled,
-                    Message = "Inventory reservation failed after retries."
-                };
-            }
+                return await HandleReservationFailure(workflowContext, orderDto, reservationResult);
 
 
-            // If reservation succeeded so Update the status to
+            // Handle reservation success
+            orderDto.TotalAmount = reservationResult.TotalAmount;
             orderDto.Status = OrderStatus.InventoryReserved;
 
-            // Log the updated TotalAmount
             await workflowContext.CallActivityAsync(
                 nameof(NotifyActivity),
                 new Notification($"Inventory reservation successful for Order {orderDto.OrderId}." +
                 $" TotalAmount: {orderDto.TotalAmount}",
                 orderDto));
+
+
+            
 
 
 
@@ -199,24 +136,12 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
                 TimeSpan.FromDays(1));
 
 
-            //Failed Scenario
+            ////Failed Scenario
             if (paymentResult.State == ResultState.Failed)
-            {
-                //Failed CreateOrder delete database activity ------- DeleteOrderActivity
-                //Failed Reservation Call activity --------
-                // Payment failed, unreserve items ----------
-                await workflowContext.CallActivityAsync(nameof(UnReserveItemsActivity), orderItemsInsideOrderDto);
-                await workflowContext.CallActivityAsync(nameof(DeleteOrderActivity), orderDto.OrderId);
-                await workflowContext.CallActivityAsync(nameof(NotifyActivity),
-                    new Notification($"Payment failed for Order {orderDto.OrderId}. Unreserving items.", orderDto));
+                return await HandlePaymentFailure(workflowContext, orderDto);
 
-                return new OrderResultDto
-                {
-                    OrderId = orderDto.OrderId,
-                    OrderStatus = OrderStatus.Cancelled,
-                    Message = "Payment failed"
-                };
-            }
+
+
 
             // Step 7: Finalize Order
             orderDto.Status = OrderStatus.Confirmed;
@@ -226,6 +151,90 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
 
             return new OrderResultDto { OrderId = orderDto.OrderId, OrderStatus = OrderStatus.Confirmed };
         }
+
+
+
+
+
+
+
+
+
+        // Handles failure during order creation
+        private async Task<OrderResultDto> HandleOrderCreationFailure(
+            WorkflowContext workflowContext, 
+            OrderDto orderDto, 
+            OrderResultDto createOrderResult)
+        {
+            await workflowContext.CallActivityAsync(nameof(DeleteOrderActivity), orderDto.OrderId);
+
+            await workflowContext.CallActivityAsync(
+                nameof(NotifyActivity),
+                new Notification($"Order {orderDto.OrderId} creation failed and was deleted.", orderDto));
+
+            return new OrderResultDto
+            {
+                OrderId = orderDto.OrderId,
+                OrderStatus = OrderStatus.Cancelled,
+                Message = createOrderResult.Message
+            };
+        }
+
+        
+
+        // Handles failure during inventory reservation
+        private async Task<OrderResultDto> HandleReservationFailure(
+            WorkflowContext workflowContext,
+            OrderDto orderDto, 
+            ItemsReservedResultEvent reservationResult)
+        {
+            // Notify about the reservation failure
+            await workflowContext.CallActivityAsync(
+                nameof(NotifyActivity),
+                new Notification($"Inventory reservation failed for Order {orderDto.OrderId}: " +
+                $"{reservationResult?.Reason}", 
+                orderDto));
+
+            // Call UnReserveItemsActivity to inform WarehouseAPI
+            await workflowContext.CallActivityAsync(
+                nameof(UnReserveItemsActivity),
+                orderDto.OrderItemsList);
+
+            // Compensating action: delete the order from the database
+            await workflowContext.CallActivityAsync(
+                nameof(DeleteOrderActivity),
+                orderDto.OrderId);
+
+            return new OrderResultDto
+            {
+                OrderId = orderDto.OrderId,
+                OrderStatus = OrderStatus.Cancelled,
+                Message = reservationResult?.Reason ?? "Inventory reservation timeout."
+            };
+        }
+
+
+
+
+        // Handles failure during payment processing
+        private async Task<OrderResultDto> HandlePaymentFailure(
+            WorkflowContext workflowContext,
+            OrderDto orderDto)
+        {
+            await workflowContext.CallActivityAsync(nameof(UnReserveItemsActivity), orderDto.OrderItemsList);
+            await workflowContext.CallActivityAsync(nameof(DeleteOrderActivity), orderDto.OrderId);
+
+            await workflowContext.CallActivityAsync(
+                nameof(NotifyActivity),
+                new Notification($"Payment failed for Order {orderDto.OrderId}. Unreserving items.", orderDto));
+
+            return new OrderResultDto
+            {
+                OrderId = orderDto.OrderId,
+                OrderStatus = OrderStatus.Cancelled,
+                Message = "Payment failed"
+            };
+        }
     }
 }
 
@@ -233,15 +242,3 @@ namespace Lexias.Services.OrderAPI.DaprWorkflow
 
 
 
-
-
-////List of OrderItems 
-//var orderItemsInsideOrder = orderDto.OrderItemsList.Select(item => new OrderItemDto
-//{
-//    ProductId = item.ProductId,
-//    Quantity = item.Quantity,
-//    ItemType = item.ItemType
-//}).ToList();
-
-//// Step XX3XX: Reserve Items (Sending List of OrderItems)
-//var orderItemsToReserve = new InventoryRequestDto(orderItemsInsideOrder);

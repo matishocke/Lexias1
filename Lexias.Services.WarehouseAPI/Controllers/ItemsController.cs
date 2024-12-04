@@ -79,27 +79,14 @@ namespace Lexias.Services.WarehouseAPI.Controllers
             //NOTE: we HAVE TO provoke ItemsReservedResultEvent back either succed nor failed because the workflow is WAITING
             if (itemsAvailable == false)
             {
-                var itemReservationFailedEvent = new ItemsReservationFailedEvent
-                {
-                    CorrelationId = reserveItemsEvent.CorrelationId,
-                    State = ResultState.Failed,
-                    OrderItems = reserveItemsEvent.OrderItemsList,
-                    Reason = "Insufficient inventory"
-                };
-                await _daprClient.PublishEventAsync(   //Sender //now from here we will publish the data back //down
-                    WarehouseChannel.Channel,
-                    WarehouseChannel.Topics.ReservationFailed,
-                    itemReservationFailedEvent);
-
-
-
                 //we also going to make a publish itemsReservedResultEvent as a failed scenario with a State = ResultState.Failed,
                 // Publish ItemsReservedResultEvent to the workflow with a failed state
                 var itemsReservedResultEvent2failed = new ItemsReservedResultEvent
                 {
                     CorrelationId = reserveItemsEvent.CorrelationId,
                     State = ResultState.Failed,
-                    TotalAmount = 0
+                    TotalAmount = 0,
+                    Reason = "Insufficient inventory"
                 };
                 await _daprClient.PublishEventAsync(
                     WorkflowChannel.Channel,
@@ -109,10 +96,10 @@ namespace Lexias.Services.WarehouseAPI.Controllers
 
 
                 _logger.LogInformation($"Reservation failed for Order: " +
-                    $"{itemReservationFailedEvent.CorrelationId}, " +
-                    $"Reason: {itemReservationFailedEvent.Reason}");
+                    $"{itemsReservedResultEvent2failed.CorrelationId}, " +
+                    $"Reason: {itemsReservedResultEvent2failed.Reason}");
 
-                return BadRequest(itemReservationFailedEvent);
+                return BadRequest(itemsReservedResultEvent2failed);
             }
 
 

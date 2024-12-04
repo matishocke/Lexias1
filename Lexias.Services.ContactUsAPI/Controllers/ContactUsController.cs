@@ -36,7 +36,6 @@ namespace Lexias.Services.ContactUsAPI.Controllers
             // Map DTO to Entity
             var contactUs = new ContactUs
             {
-                Id = contactUsDto.Id,
                 Name = contactUsDto.Name,
                 Email = contactUsDto.Email,
                 Subject = contactUsDto.Subject,
