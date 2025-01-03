@@ -28,6 +28,18 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/gateway/Products", //this is incoming request
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/product/GetProductById/{productId}", //this is what actually we gotta go and find in order controller
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5177
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/gateway/payment/hello",
       "UpstreamHttpMethod": [ "GET" ],
       "DownstreamPathTemplate": "/hello",

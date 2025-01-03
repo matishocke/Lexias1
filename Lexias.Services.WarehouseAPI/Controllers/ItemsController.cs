@@ -10,7 +10,7 @@ using Shared.Queues;
 
 namespace Lexias.Services.WarehouseAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/product")]
     [ApiController]
     public class ItemsController : ControllerBase
     {
@@ -168,6 +168,30 @@ namespace Lexias.Services.WarehouseAPI.Controllers
             }
 
             return Ok();
+        }
+
+
+
+
+        // Get All Products
+        [HttpGet("GetAllProducts")]
+        public async Task<IActionResult> GetAllProducts()
+        {
+            try
+            {
+                var products = await _db.GetAllProductsAsync();
+                if (products == null || !products.Any())
+                {
+                    return NotFound("No products found.");
+                }
+
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error fetching products: {ex.Message}");
+                return StatusCode(500, "An error occurred while fetching the products.");
+            }
         }
     }
 }

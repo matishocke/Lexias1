@@ -1,0 +1,10 @@
+﻿@using Newtonsoft.Json
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@using UmbracoLexiasWeb.Models.ViewModels.ProductViewModel
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+	Layout = "master.cshtml";
+
+	var productList = JsonConvert.DeserializeObject<List<ProductViewModel>>(TempData["ProductList"]?.ToString() ?? "[]");
+
+}

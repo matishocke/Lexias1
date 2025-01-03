@@ -31,6 +31,7 @@ namespace UmbracoLexiasWeb.Services
             }
         }
 
+
         //Order By Id
         public async Task<OrderDto?> GetOrderByIdAsync(string orderId)
         {
@@ -45,6 +46,8 @@ namespace UmbracoLexiasWeb.Services
                 throw new Exception($"Error fetching order with ID {orderId}: {ex.Message}");
             }
         }
+
+
 
         //Order by Customer
         public async Task<OrderDto?> GetOrderByCustomerId(string customerId)

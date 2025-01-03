@@ -37,7 +37,6 @@ namespace Lexias.Services.OrderAPI.Controllers
             try
             {
 
-
                 // Start the workflow with the OrderDto object
                 var startResponse =
                      await _daprClient.StartWorkflowAsync(workflowComponentName, workflowName, instanceId, orderDto);

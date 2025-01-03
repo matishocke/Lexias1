@@ -12,9 +12,8 @@
     Layout = "master.cshtml";
 
     // Deserialize OrderList from TempData, if available
-    List<OrderViewModel> orderList = TempData["OrderList"] != null
-        ? JsonConvert.DeserializeObject<List<OrderViewModel>>(TempData["OrderList"].ToString())
-        : new List<OrderViewModel>();
+    var orderList = JsonConvert.DeserializeObject<List<OrderViewModel>>(TempData["OrderList"]?.ToString() ?? "[]");
+
 
     string errorMessage = TempData["Error"] as string;
 
@@ -55,6 +54,8 @@
     {
         <div class="alert alert-danger">@errorMessage</div>
     }
+
+
 
     <!-- Render the search form -->
     @Html.Partial("~/Views/Partials/Order/OrderList.cshtml")

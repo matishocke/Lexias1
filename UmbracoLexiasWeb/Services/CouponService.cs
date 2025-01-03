@@ -21,7 +21,7 @@ namespace UmbracoLexiasWeb.Services
         {
             try
             {
-                var client = _httpClientFactory.CreateClient("CouponAPI");
+                var client = _httpClientFactory.CreateClient("CouponAPI"); ////https: //localhost:7001
                 var answer = await client.GetFromJsonAsync<IEnumerable<CouponDto>>("api/CouponAPI");
                 return answer;
             }
