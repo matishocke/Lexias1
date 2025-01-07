@@ -7,4 +7,4 @@
         public double DiscountAmount { get; set; }
         public int MinAmount { get; set; }
     }
-}
+}//
