@@ -30,7 +30,7 @@ builder.Services.AddHttpClient("GatewayAPI", client =>
 });
 
 
-// Register your custom services
+// Register your custom servicess
 builder.Services.AddScoped<ICouponService, CouponService>();
 builder.Services.AddScoped<IContactUsService, ContactUsService>();
 builder.Services.AddScoped<IGatewayOrderService, GatewayOrderService>();
